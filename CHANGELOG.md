@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 6.0.0 - 2026-05-27
+## 6.0.0-6.0.1 - 2026-05-27
 
 ### Changed
 - **BREAKING**: Forked to `@interop/did-method-key` and converted to TypeScript.
