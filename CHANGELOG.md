@@ -1,5 +1,21 @@
 # @interop/did-method-key ChangeLog
 
+## 6.2.0 -
+
+### Changed
+- **BREAKING**: Replaced the `any`-typed key-pair instances with concrete types.
+  Verification key-pair instances and the `keyPairs` map are now typed as
+  `@digitalcredentials/keypair`'s `KeyPair` class, and the local `DidDocument` /
+  `VerificationMethod` interfaces were dropped in favor of ssi's `IDidDocument` /
+  `IPublicKey`. Instance-or-description inputs to `fromKeyPair()` are typed
+  `KeyPair | IKeyPair`, discriminated at runtime via an `'export' in keyPair`
+  check (a live instance vs. a serialized KMS description).
+- The lone remaining `any` is the X25519 key-agreement path
+  (`@digitalbazaar/x25519-key-agreement-key-2020`): it is a key-*agreement* key
+  with no `signer()` / `verifier()`, so it does not structurally satisfy
+  `KeyPair`. This will be tightened if that suite extends `KeyPair` and ships
+  ssi types.
+
 ## 6.1.0 - 2026-05-27
 
 ### Added

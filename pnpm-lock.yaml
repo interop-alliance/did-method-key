@@ -11,6 +11,12 @@ importers:
       '@digitalbazaar/x25519-key-agreement-key-2020':
         specifier: ^3.0.1
         version: 3.0.1
+      '@digitalcredentials/keypair':
+        specifier: ^3.0.0
+        version: 3.0.0
+      '@digitalcredentials/ssi':
+        specifier: ^5.4.2
+        version: 5.4.2
       '@interop/did-io':
         specifier: ^2.0.1
         version: 2.0.1

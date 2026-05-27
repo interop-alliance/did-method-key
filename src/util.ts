@@ -1,6 +1,7 @@
 /*!
  * Copyright (c) 2023-2026 Digital Bazaar, Inc. All rights reserved.
  */
+import type { KeyPair } from '@digitalcredentials/keypair'
 import type { FromMultibase } from './types.js'
 
 /**
@@ -15,7 +16,7 @@ import type { FromMultibase } from './types.js'
 export function createFromMultibase({
   fromFingerprint
 }: {
-  fromFingerprint: (options: { fingerprint: string }) => any
+  fromFingerprint: (options: { fingerprint: string }) => KeyPair | Promise<KeyPair>
 }): FromMultibase {
   return async function fromMultibase({
     publicKeyMultibase
