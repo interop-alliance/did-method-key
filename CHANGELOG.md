@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 6.1.0 -
+## 6.1.0 - 2026-05-27
 
 ### Added
 - Add `use({ keyPairClass })` form. Registering a KeyPair suite class lets the
