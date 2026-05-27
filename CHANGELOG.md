@@ -1,4 +1,19 @@
-# did:key driver ChangeLog
+# @interop/did-method-key ChangeLog
+
+## 6.0.0 - TBD
+
+### Changed
+- **BREAKING**: Forked to `@interop/did-method-key` and converted to TypeScript.
+  The package is now built with `tsc` to `dist/`, ships type declarations, and
+  uses `pnpm`. Requires Node.js 24+.
+- **BREAKING**: Switched from `@digitalbazaar/did-io` to `@interop/did-io`, and
+  from `@digitalbazaar/ed25519-multikey` to `@interop/ed25519-verification-key`.
+- Tests migrated from Mocha/Karma to Vitest (Node) and Playwright (browser).
+
+### Removed
+- **BREAKING**: Dropped support for BLS12-381 keys and the
+  `Ed25519VerificationKey2018` / legacy `X25519KeyAgreementKey2019`-derivation
+  code paths (and their tests).
 
 ## 5.3.0 - 2025-09-21
 
