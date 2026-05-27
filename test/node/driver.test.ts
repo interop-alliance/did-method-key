@@ -316,6 +316,115 @@ describe('did:key method driver', () => {
     })
   })
 
+  describe('use', () => {
+    it('registers a key type from a keyPairClass', async () => {
+      const localDriver = driver()
+      localDriver.use({ keyPairClass: Ed25519VerificationKey })
+
+      const did = 'did:key:z6MknCCLeeHBUaHu4aHSVLDCYQW9gjVJ7a63FpMvtuVMy53T'
+      const didDocument: any = await localDriver.get({ did })
+      expect(didDocument.id).toBe(did)
+      expect(didDocument.verificationMethod[0].type).toBe('Multikey')
+    })
+
+    it('throws if keyPairClass has no multibaseHeader', () => {
+      const localDriver = driver()
+      let error
+      try {
+        localDriver.use({
+          keyPairClass: { from: Ed25519VerificationKey.from } as any
+        })
+      } catch (caughtError) {
+        error = caughtError as Error
+      }
+      expect(error).toBeDefined()
+      expect(error!.message).toContain('multibaseHeader')
+    })
+  })
+
+  describe('generate', () => {
+    it('generates a new DID document from the sole registered suite', async () => {
+      const localDriver = driver()
+      localDriver.use({ keyPairClass: Ed25519VerificationKey })
+
+      const { didDocument, keyPairs, methodFor }: any =
+        await localDriver.generate()
+
+      const did = didDocument.id
+      expect(did).toMatch(/^did:key:z6Mk/)
+      expect(didDocument.verificationMethod[0].type).toBe('Multikey')
+
+      const verificationKeyPair = methodFor({ purpose: 'assertionMethod' })
+      expect(keyPairs.get(verificationKeyPair.id)).toBeDefined()
+
+      // Generated doc round-trips through resolution.
+      const fetchedDidDoc = await localDriver.get({ did })
+      expect(fetchedDidDoc).toEqual(didDocument)
+    })
+
+    it('selects a suite via keyType when several are registered', async () => {
+      const localDriver = driver()
+      localDriver.use({ keyPairClass: Ed25519VerificationKey })
+      localDriver.use({
+        multibaseMultikeyHeader: 'z6LS',
+        fromMultibase: X25519KeyAgreementKey2020.from
+      })
+
+      const { didDocument }: any = await localDriver.generate({
+        keyType: Ed25519VerificationKey
+      })
+      expect(didDocument.id).toMatch(/^did:key:z6Mk/)
+    })
+
+    it('throws when several suites are registered and no keyType is given', async () => {
+      const localDriver = driver()
+      localDriver.use({ keyPairClass: Ed25519VerificationKey })
+      localDriver.use({
+        multibaseMultikeyHeader: 'z6LS',
+        fromMultibase: X25519KeyAgreementKey2020.from
+      })
+
+      let error
+      try {
+        await localDriver.generate()
+      } catch (caughtError) {
+        error = caughtError as Error
+      }
+      expect(error).toBeDefined()
+      expect(error!.message).toContain('Multiple key suites registered')
+    })
+
+    it('throws when no suite is registered', async () => {
+      const localDriver = driver()
+      let error
+      try {
+        await localDriver.generate()
+      } catch (caughtError) {
+        error = caughtError as Error
+      }
+      expect(error).toBeDefined()
+      expect(error!.message).toContain('No key suite registered')
+    })
+
+    it('throws when the registered suite cannot generate keys', async () => {
+      const localDriver = driver()
+      // Lower-level registration has no generator.
+      localDriver.use({
+        multibaseMultikeyHeader: 'z6Mk',
+        fromMultibase: Ed25519VerificationKey.from
+      })
+
+      let error
+      try {
+        await localDriver.generate()
+      } catch (caughtError) {
+        error = caughtError as Error
+      }
+      expect(error).toBeDefined()
+      expect(error!.message).toContain('cannot generate keys')
+    })
+  })
+
   describe('publicKeyToDidDoc', () => {
     it('should convert a key pair instance into a did doc', async () => {
       // Note that a freshly-generated key pair does not have a controller

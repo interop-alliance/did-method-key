@@ -15,8 +15,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       '@interop/ed25519-verification-key':
-        specifier: ^6.1.1
-        version: 6.1.1
+        specifier: ^6.2.0
+        version: 6.2.0
     devDependencies:
       '@digitalbazaar/ecdsa-multikey':
         specifier: ^1.8.0
@@ -186,8 +186,8 @@ packages:
     resolution: {integrity: sha512-L70N0ra0/7SkZx3xw/CF/UOMbl0qATpm99ybacLhbOm9MlTbQGLgw+1h+YKHsVf81uTvaxHa8tbtA5fnM62UQw==}
     engines: {node: '>=24.0'}
 
-  '@interop/ed25519-verification-key@6.1.1':
-    resolution: {integrity: sha512-55Kja5tcozZsPMfi9VjAYgTiQ7DRLflYWSxPvItPdccQJv33NNlX4CGPaUFtVOmAKg8ymNTHs3WgzZCBxvQ4sQ==}
+  '@interop/ed25519-verification-key@6.2.0':
+    resolution: {integrity: sha512-UEJZeB+b5rp5kr2ZYqH2qiKnLQwRTHxQnhArnzL2Flve33HDRHkne8qHZPVjtJpOUYzHHnV7XGgp/ApST9GzjQ==}
     engines: {node: '>=20'}
 
   '@interop/lru-memoize@4.0.2':
@@ -1191,7 +1191,7 @@ snapshots:
       '@digitalcredentials/ssi': 5.4.2
       '@interop/lru-memoize': 4.0.2
 
-  '@interop/ed25519-verification-key@6.1.1':
+  '@interop/ed25519-verification-key@6.2.0':
     dependencies:
       '@digitalcredentials/keypair': 3.0.0
       '@digitalcredentials/ssi': 5.4.2

@@ -12,9 +12,6 @@ import { driver } from '../../src/index.js'
  */
 export async function resolveEd25519(did: string): Promise<any> {
   const didKeyDriver = driver()
-  didKeyDriver.use({
-    multibaseMultikeyHeader: 'z6Mk',
-    fromMultibase: Ed25519VerificationKey.from
-  })
+  didKeyDriver.use({ keyPairClass: Ed25519VerificationKey })
   return didKeyDriver.get({ did })
 }

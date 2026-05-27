@@ -111,9 +111,27 @@ pnpm install
 
 ### `use()`
 
-This method registers a multibase-multikey header and a multibase-multikey
-deserializer and configures a driver to use a multibase-multikey deserializer
-to handle data using that multibase-multikey header.
+This method registers a key type that the driver is allowed to handle, for
+both resolution (`get()`) and generation (`generate()`).
+
+The preferred form passes a **`keyPairClass`** -- a KeyPair suite class. The
+driver reads the multibase-multikey header, deserializer, and key generator off
+the class, so you never have to look up or hard-code the literal multibase
+prefix:
+
+```js
+import { driver } from '@interop/did-method-key'
+import { Ed25519VerificationKey } from '@interop/ed25519-verification-key'
+
+const didKeyDriver = driver()
+
+didKeyDriver.use({ keyPairClass: Ed25519VerificationKey })
+```
+
+For a suite that does not expose the `keyPairClass` contract (no static
+`multibaseHeader`/`from`/`generate`), use the lower-level form: register the
+multibase-multikey header and a `fromMultibase` deserializer directly. Key
+types registered this way support resolution but not `generate()`.
 
 ```js
 import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey'
@@ -145,10 +163,44 @@ didKeyDriver.use({
 })
 ```
 
+### `generate()`
+
+The simplest way to mint a brand-new `did:key` DID Document: register a suite
+via `use({ keyPairClass })`, then call `generate()`. The driver generates a
+fresh key pair using the registered suite and returns the DID Document along
+with the corresponding key pairs (for storage in a KMS).
+
+```js
+import { driver } from '@interop/did-method-key'
+import { Ed25519VerificationKey } from '@interop/ed25519-verification-key'
+
+const didKeyDriver = driver()
+didKeyDriver.use({ keyPairClass: Ed25519VerificationKey })
+
+const { didDocument, keyPairs, methodFor } = await didKeyDriver.generate()
+
+// serialize the public DID Document, e.g. for storage on disk
+console.log(JSON.stringify(didDocument, null, 2))
+```
+
+When exactly one suite is registered, `generate()` uses it automatically. If
+more than one is registered, pass `keyType` (a KeyPair class or its multibase
+header) to disambiguate:
+
+```js
+const { didDocument } = await didKeyDriver.generate({
+  keyType: Ed25519VerificationKey
+})
+```
+
+Note that `generate()` requires a suite registered via `use({ keyPairClass })`;
+the lower-level `use({ multibaseMultikeyHeader, fromMultibase })` form has no
+key generator and supports resolution only.
+
 ### `fromKeyPair()`
 
-To generate a new key and get its corresponding `did:key` method DID Document
-from a verification keypair.
+To get the `did:key` method DID Document that corresponds to an existing
+verification keypair (for example, one you generated or loaded yourself).
 
 ```js
 import { driver } from '@interop/did-method-key'
@@ -156,10 +208,7 @@ import { Ed25519VerificationKey } from '@interop/ed25519-verification-key'
 
 const didKeyDriver = driver()
 
-didKeyDriver.use({
-  multibaseMultikeyHeader: 'z6Mk',
-  fromMultibase: Ed25519VerificationKey.from
-})
+didKeyDriver.use({ keyPairClass: Ed25519VerificationKey })
 
 const publicKeyMultibase = 'z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH'
 const verificationKeyPair = await Ed25519VerificationKey.from({

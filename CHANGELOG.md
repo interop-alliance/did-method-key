@@ -1,5 +1,30 @@
 # @interop/did-method-key ChangeLog
 
+## 6.1.0 -
+
+### Added
+- Add `use({ keyPairClass })` form. Registering a KeyPair suite class lets the
+  driver read the multibase-multikey header, deserializer, and key generator off
+  the class, so callers no longer have to know or hard-code the literal
+  multibase prefix. Requires a suite that exposes a static `multibaseHeader`
+  (e.g. `@interop/ed25519-verification-key` v6.2.0+). The lower-level
+  `use({ multibaseMultikeyHeader, fromMultibase })` form is retained for suites
+  without that contract (resolution only).
+- Add `generate({ keyType, keyAgreementKeyPair })`, which generates a new key
+  pair using a registered suite and returns its DID Document. When exactly one
+  suite is registered it is used automatically; when several are registered,
+  `keyType` (a KeyPair class or its multibase header) selects which. This also
+  restores compatibility with `@interop/did-io`'s `CachedResolver.generate()`
+  pass-through. `generate()` requires a suite registered via
+  `use({ keyPairClass })`.
+- Export the `KeyPairClass` type.
+
+### Changed
+- `fromKeyPair()` and `generate()` no longer require a prior `use()` call: a
+  live key pair instance is now used directly. The `use()` registry is still
+  consulted to rebuild a key from a plain key description (e.g. from a KMS) in
+  `publicKeyToDidDoc()`, and to deserialize keys during `get()` resolution.
+
 ## 6.0.0-6.0.1 - 2026-05-27
 
 ### Changed
