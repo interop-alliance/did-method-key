@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 6.2.0 -
+## 6.2.0 - 2026-05-27
 
 ### Changed
 - **BREAKING**: Replaced the `any`-typed key-pair instances with concrete types.
