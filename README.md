@@ -193,6 +193,18 @@ const { didDocument } = await didKeyDriver.generate({
 })
 ```
 
+To deterministically derive the key pair from a secret-key seed (rather than
+generating a random one), pass a `seed` (a `Uint8Array`). The same seed always
+produces the same DID Document:
+
+```js
+const { didDocument } = await didKeyDriver.generate({ seed })
+```
+
+The `seed` is passed through to the registered suite's `generate()`, so its
+required length and format are determined by that suite (for ed25519, a 32-byte
+`Uint8Array`).
+
 Note that `generate()` requires a suite registered via `use({ keyPairClass })`;
 the lower-level `use({ multibaseMultikeyHeader, fromMultibase })` form has no
 key generator and supports resolution only.
