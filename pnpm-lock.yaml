@@ -18,8 +18,8 @@ importers:
         specifier: ^5.4.2
         version: 5.4.2
       '@interop/did-io':
-        specifier: ^2.0.1
-        version: 2.0.1
+        specifier: ^3.0.0
+        version: 3.0.0
       '@interop/ed25519-verification-key':
         specifier: ^6.2.0
         version: 6.2.0
@@ -188,8 +188,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@interop/did-io@2.0.1':
-    resolution: {integrity: sha512-L70N0ra0/7SkZx3xw/CF/UOMbl0qATpm99ybacLhbOm9MlTbQGLgw+1h+YKHsVf81uTvaxHa8tbtA5fnM62UQw==}
+  '@interop/did-io@3.0.0':
+    resolution: {integrity: sha512-47Rkx/tYNfVVCHi3IhIyxlM2eCUul+X4vZWBrQMCKoafgQYhnMPhWHPXRs9mugc21rUH+kBaY4he6b45VtGPWw==}
     engines: {node: '>=24.0'}
 
   '@interop/ed25519-verification-key@6.2.0':
@@ -1192,8 +1192,9 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@interop/did-io@2.0.1':
+  '@interop/did-io@3.0.0':
     dependencies:
+      '@digitalcredentials/keypair': 3.0.0
       '@digitalcredentials/ssi': 5.4.2
       '@interop/lru-memoize': 4.0.2
 
