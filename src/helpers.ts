@@ -2,7 +2,28 @@
  * Copyright (c) 2023-2026 Digital Bazaar, Inc. All rights reserved.
  */
 import { X25519KeyAgreementKey2020 } from '@digitalbazaar/x25519-key-agreement-key-2020'
-import type { DidDocument, FromMultibase, VerificationMethod } from './types.js'
+import type { KeyPair } from '@digitalcredentials/keypair'
+import type {
+  IDID,
+  IDidDocument,
+  IKeyIdOrObject,
+  IKeyPair,
+  IPublicKey
+} from '@digitalcredentials/ssi'
+import type { FromMultibase } from './types.js'
+
+/**
+ * Normalizes a DID Document verification-relationship value (which the data
+ * model permits to be a single entry or an array) to an array.
+ */
+function toArray(
+  value?: IKeyIdOrObject | IKeyIdOrObject[]
+): IKeyIdOrObject[] {
+  if (value == null) {
+    return []
+  }
+  return Array.isArray(value) ? value : [value]
+}
 
 const ED25519_KEY_2020_TYPE = 'Ed25519VerificationKey2020'
 const ED25519_KEY_2020_CONTEXT_URL =
@@ -30,41 +51,49 @@ const contextsBySuite = new Map<string, string>([
  * Returns the public key object for a given key id fragment.
  *
  * @param options {object} - Options hashmap.
- * @param options.didDocument {DidDocument} - The DID Document to use when
+ * @param options.didDocument {IDidDocument} - The DID Document to use when
  *   generating the id.
  * @param options.keyIdFragment {string} - The key identifier fragment.
  *
- * @returns {VerificationMethod} Returns the public key node, with `@context`.
+ * @returns {IPublicKey} Returns the public key node, with `@context`.
  */
 export function getKey({
   didDocument,
   keyIdFragment
 }: {
-  didDocument: DidDocument
+  didDocument: IDidDocument
   keyIdFragment: string
-}): VerificationMethod {
+}): IPublicKey {
   // Determine if the key id fragment belongs to the "main" public key,
   // or the keyAgreement key
   const keyId = didDocument.id + '#' + keyIdFragment
-  let publicKey: VerificationMethod
-  if (didDocument.verificationMethod?.[0]?.id === keyId) {
+  const [verificationMethod] = toArray(didDocument.verificationMethod)
+  let publicKey: IPublicKey
+  if (
+    typeof verificationMethod === 'object' &&
+    verificationMethod.id === keyId
+  ) {
     // Return the public key node for the main public key
-    publicKey = didDocument.verificationMethod[0]
+    publicKey = verificationMethod
   } else {
     // Return the public key node for the X25519 key-agreement key
-    publicKey = didDocument.keyAgreement![0]!
+    publicKey = toArray(didDocument.keyAgreement)[0] as IPublicKey
   }
 
   return {
-    '@context': contextsBySuite.get(publicKey.type),
+    '@context': publicKey.type
+      ? contextsBySuite.get(publicKey.type)
+      : undefined,
     ...publicKey
   }
 }
 
-export function getDid({ keyPair }: { keyPair: any }): string {
-  return keyPair.fingerprint
-    ? `did:key:${keyPair.fingerprint()}`
-    : `did:key:${keyPair.publicKeyMultibase}`
+export function getDid({ keyPair }: { keyPair: any }): IDID {
+  return (
+    keyPair.fingerprint
+      ? `did:key:${keyPair.fingerprint()}`
+      : `did:key:${keyPair.publicKeyMultibase}`
+  ) as IDID
 }
 
 export function setKeyPairId({
@@ -84,7 +113,7 @@ export async function getKeyAgreementKeyPair({
   verificationPublicKey
 }: {
   contexts: string[]
-  verificationPublicKey: VerificationMethod
+  verificationPublicKey: IPublicKey
 }): Promise<{ keyAgreementKeyPair?: any }> {
   // The KAK pair will use the source key's controller, but may generate
   // its own .id
@@ -161,19 +190,22 @@ export async function getKeyPair({
 }: {
   fromMultibase?: FromMultibase
   publicKeyMultibase?: string
-  publicKeyDescription?: any
-} = {}): Promise<{ keyPair: any; keyAgreementKeyPair: any }> {
-  let keyPair: any
+  publicKeyDescription?: KeyPair | IKeyPair
+} = {}): Promise<{
+  keyPair?: KeyPair | IKeyPair
+  keyAgreementKeyPair: any
+}> {
+  let keyPair: KeyPair | IKeyPair | undefined
   if (fromMultibase && publicKeyMultibase) {
     keyPair = await fromMultibase({ publicKeyMultibase })
   } else {
     keyPair = publicKeyDescription
   }
-  const { type } = keyPair
+  const type = keyPair?.type
   let keyAgreementKeyPair: any
   if (type === X25519_2020_TYPE || type === X25519_2019_TYPE) {
     keyAgreementKeyPair = keyPair
-    keyPair = null
+    keyPair = undefined
   }
   return { keyPair, keyAgreementKeyPair }
 }

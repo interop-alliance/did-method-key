@@ -1,40 +1,15 @@
 /*!
  * Copyright (c) 2021-2026 Digital Bazaar, Inc. All rights reserved.
  */
-
-/**
- * A verification method (public key) node within a DID Document.
- */
-export interface VerificationMethod {
-  id: string
-  type: string
-  controller: string
-  publicKeyMultibase?: string
-  publicKeyBase58?: string
-  '@context'?: string | string[]
-}
-
-/**
- * A `did:key` method DID Document.
- */
-export interface DidDocument {
-  '@context': string[]
-  id: string
-  verificationMethod?: VerificationMethod[]
-  authentication?: string[]
-  assertionMethod?: string[]
-  capabilityDelegation?: string[]
-  capabilityInvocation?: string[]
-  keyAgreement?: VerificationMethod[]
-}
+import type { KeyPair } from '@digitalcredentials/keypair'
 
 /**
  * A multibase-multikey deserializer: converts a `{publicKeyMultibase}` value
- * into a key pair interface.
+ * into a live key pair instance.
  */
 export type FromMultibase = (options: {
   publicKeyMultibase: string
-}) => Promise<any>
+}) => Promise<KeyPair>
 
 /**
  * A KeyPair suite class usable for `did:key` generation and resolution via
@@ -45,7 +20,7 @@ export type FromMultibase = (options: {
 export interface KeyPairClass {
   multibaseHeader: string
   from: FromMultibase
-  generate?: (options?: object) => Promise<any>
+  generate?: (options?: object) => Promise<KeyPair>
 }
 
 /**
@@ -54,5 +29,5 @@ export interface KeyPairClass {
  */
 export interface RegisteredKeyType {
   fromMultibase: FromMultibase
-  generate?: (options?: object) => Promise<any>
+  generate?: (options?: object) => Promise<KeyPair>
 }

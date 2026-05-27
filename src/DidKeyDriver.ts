@@ -11,12 +11,12 @@ import {
   getMultibaseMultikeyHeader,
   setKeyPairId
 } from './helpers.js'
+import type { KeyPair } from '@digitalcredentials/keypair'
+import type { IDidDocument, IKeyPair, IPublicKey } from '@digitalcredentials/ssi'
 import type {
-  DidDocument,
   FromMultibase,
   KeyPairClass,
-  RegisteredKeyType,
-  VerificationMethod
+  RegisteredKeyType
 } from './types.js'
 
 const DID_CONTEXT_URL = 'https://www.w3.org/ns/did/v1'
@@ -104,7 +104,7 @@ export class DidKeyDriver {
    * @param [options.keyAgreementKeyPair] {object} - Optional keyAgreement key
    *   pair, passed through to `fromKeyPair()`.
    *
-   * @returns {Promise<{didDocument: DidDocument, keyPairs: Map<string, any>,
+   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, KeyPair>,
    *   methodFor: Function}>} Resolves with the generated DID Document and the
    *   corresponding key pairs (for storage in a KMS).
    */
@@ -119,9 +119,9 @@ export class DidKeyDriver {
     keyAgreementKeyPair?: any
     [key: string]: unknown
   } = {}): Promise<{
-    didDocument: DidDocument
-    keyPairs: Map<string, any>
-    methodFor: (options: { purpose: string }) => any
+    didDocument: IDidDocument
+    keyPairs: Map<string, KeyPair>
+    methodFor: (options: { purpose: string }) => KeyPair
   }> {
     let multibaseMultikeyHeader: string | undefined
     if (keyType) {
@@ -163,7 +163,7 @@ export class DidKeyDriver {
    * @param [options.verificationKeyPair] {object} - A verification KeyPair.
    * @param [options.keyAgreementKeyPair] {object} - A keyAgreement KeyPair.
    *
-   * @returns {Promise<{didDocument: DidDocument, keyPairs: Map<string, any>,
+   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, KeyPair>,
    *   methodFor: Function}>} Resolves with the generated DID Document, along
    *   with the corresponding key pairs used to generate it (for storage in a
    *   KMS).
@@ -172,12 +172,12 @@ export class DidKeyDriver {
     verificationKeyPair,
     keyAgreementKeyPair
   }: {
-    verificationKeyPair?: any
+    verificationKeyPair?: KeyPair | IKeyPair
     keyAgreementKeyPair?: any
   } = {}): Promise<{
-    didDocument: DidDocument
-    keyPairs: Map<string, any>
-    methodFor: (options: { purpose: string }) => any
+    didDocument: IDidDocument
+    keyPairs: Map<string, KeyPair>
+    methodFor: (options: { purpose: string }) => KeyPair
   }> {
     if (!(verificationKeyPair || keyAgreementKeyPair)) {
       throw new TypeError(
@@ -194,12 +194,12 @@ export class DidKeyDriver {
 
     // convenience function that returns the public/private key pair instance
     // for a given purpose (authentication, assertionMethod, keyAgreement, etc).
-    const methodFor = ({ purpose }: { purpose: string }) => {
+    const methodFor = ({ purpose }: { purpose: string }): KeyPair => {
       const { id: methodId } = this.publicMethodFor({
         didDocument,
         purpose
       })
-      return keyPairs.get(methodId)
+      return keyPairs.get(methodId!)!
     }
     return { didDocument, keyPairs, methodFor }
   }
@@ -218,21 +218,21 @@ export class DidKeyDriver {
    * const {verify} = authPublicKey.verifier();
    *
    * @param options {object} - Options hashmap.
-   * @param options.didDocument {DidDocument} - DID Document (retrieved via a
+   * @param options.didDocument {IDidDocument} - DID Document (retrieved via a
    *   `.get()` or from some other source).
    * @param options.purpose {string} - Verification method purpose, such as
    *   'authentication', 'assertionMethod', 'keyAgreement' and so on.
    *
-   * @returns {VerificationMethod} Returns the public key object (obtained from
+   * @returns {IPublicKey} Returns the public key object (obtained from
    *   the DID Document), without a `@context`.
    */
   publicMethodFor({
     didDocument,
     purpose
   }: {
-    didDocument?: DidDocument
+    didDocument?: IDidDocument
     purpose?: string
-  } = {}): VerificationMethod {
+  } = {}): IPublicKey {
     if (!didDocument) {
       throw new TypeError('The "didDocument" parameter is required.')
     }
@@ -240,11 +240,11 @@ export class DidKeyDriver {
       throw new TypeError('The "purpose" parameter is required.')
     }
 
-    const method = findVerificationMethod({ doc: didDocument as any, purpose })
+    const method = findVerificationMethod({ doc: didDocument, purpose })
     if (!method) {
       throw new Error(`No verification method found for purpose "${purpose}"`)
     }
-    return method as VerificationMethod
+    return method as IPublicKey
   }
 
   /**
@@ -262,7 +262,7 @@ export class DidKeyDriver {
    * @param [options.url] {string} - Alias for the `did` url param, supported
    *   for better readability of invoking code.
    *
-   * @returns {Promise<DidDocument | VerificationMethod>} Resolves to a DID
+   * @returns {Promise<IDidDocument | IPublicKey>} Resolves to a DID
    *   Document or a public key node with context.
    */
   async get({
@@ -271,7 +271,7 @@ export class DidKeyDriver {
   }: {
     did?: string
     url?: string
-  } = {}): Promise<DidDocument | VerificationMethod> {
+  } = {}): Promise<IDidDocument | IPublicKey> {
     did = did || url
     if (!did) {
       throw new TypeError('"did" must be a string.')
@@ -317,14 +317,14 @@ export class DidKeyDriver {
    *   containing public key material, or a "key description" plain object
    *   (such as that generated from a KMS)).
    *
-   * @returns {Promise<{didDocument: DidDocument}>} Resolves with the generated
+   * @returns {Promise<{didDocument: IDidDocument}>} Resolves with the generated
    *   DID Document.
    */
   async publicKeyToDidDoc({
     publicKeyDescription
   }: {
-    publicKeyDescription?: any
-  } = {}): Promise<{ didDocument: DidDocument }> {
+    publicKeyDescription?: KeyPair | IKeyPair
+  } = {}): Promise<{ didDocument: IDidDocument }> {
     const { keyPair, keyAgreementKeyPair } = await getKeyPair({
       publicKeyDescription
     })
@@ -345,7 +345,7 @@ export class DidKeyDriver {
    * @param [options.keyAgreementKeyPair] {object} - Optional
    *   keyAgreement key pair for generating did for keyAgreement.
    *
-   * @returns {Promise<{didDocument: DidDocument, keyPairs: Map<string, any>}>}
+   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, KeyPair>}>}
    *   Resolves with the generated DID Document, along with the corresponding
    *   key pairs used to generate it (for storage in a KMS).
    */
@@ -353,11 +353,14 @@ export class DidKeyDriver {
     keyPair,
     keyAgreementKeyPair
   }: {
-    keyPair?: any
+    keyPair?: KeyPair | IKeyPair
     keyAgreementKeyPair?: any
-  } = {}): Promise<{ didDocument: DidDocument; keyPairs: Map<string, any> }> {
-    const keyPairs = new Map<string, any>()
-    let didDocument: DidDocument
+  } = {}): Promise<{
+    didDocument: IDidDocument
+    keyPairs: Map<string, KeyPair>
+  }> {
+    const keyPairs = new Map<string, KeyPair>()
+    let didDocument: IDidDocument
     let publicDhKey
     const contexts: string[] = [DID_CONTEXT_URL]
     if (!keyPair && keyAgreementKeyPair) {
@@ -368,27 +371,33 @@ export class DidKeyDriver {
       publicDhKey = await keyAgreementKeyPair.export({ publicKey: true })
       keyPairs.set(keyAgreementKeyPair.id, keyAgreementKeyPair)
       didDocument = {
-        '@context': contexts,
+        '@context': [DID_CONTEXT_URL, ...contexts.slice(1)],
         id: did,
         keyAgreement: [publicDhKey]
       }
       return { didDocument, keyPairs }
     }
-    let verificationKeyPair: any
-    if (typeof keyPair.export === 'function') {
+    const sourceKeyPair = keyPair!
+    let verificationKeyPair: KeyPair
+    if ('export' in sourceKeyPair && typeof sourceKeyPair.export === 'function') {
       // A live key pair instance is self-describing, so use it directly. This
       // is why fromKeyPair()/generate() do not require a prior use() call.
-      verificationKeyPair = keyPair
+      verificationKeyPair = sourceKeyPair
     } else {
       // A plain key description (e.g. from a KMS) must be rebuilt into a live
       // instance using the registered deserializer for its multibase header.
-      let { publicKeyMultibase } = keyPair
-      if (!publicKeyMultibase && keyPair.publicKeyBase58) {
+      const description = sourceKeyPair as {
+        publicKeyMultibase?: string
+        publicKeyBase58?: string
+        fingerprint?: () => string | Promise<string>
+      }
+      let publicKeyMultibase = description.publicKeyMultibase
+      if (!publicKeyMultibase && description.publicKeyBase58) {
         // handle backwards compatibility w/older key pair interfaces
-        publicKeyMultibase = await keyPair.fingerprint()
+        publicKeyMultibase = await description.fingerprint!()
       }
       const multibaseMultikeyHeader = getMultibaseMultikeyHeader({
-        value: publicKeyMultibase
+        value: publicKeyMultibase!
       })
       const registered = this._allowedKeyTypes.get(multibaseMultikeyHeader)
       if (!registered) {
@@ -397,7 +406,7 @@ export class DidKeyDriver {
         )
       }
       verificationKeyPair = await registered.fromMultibase({
-        publicKeyMultibase
+        publicKeyMultibase: publicKeyMultibase!
       })
     }
 
@@ -410,7 +419,10 @@ export class DidKeyDriver {
       publicKey: true,
       includeContext: true
     })
-    contexts.push(verificationPublicKey['@context'])
+    const verificationContext = verificationPublicKey['@context']
+    if (verificationContext) {
+      contexts.push(verificationContext)
+    }
     // delete context from verificationPublicKey
     delete verificationPublicKey['@context']
     // get the keyAgreement keypair
@@ -435,22 +447,23 @@ export class DidKeyDriver {
     }
 
     // Compose the DID Document
+    const verificationMethodId = verificationPublicKey.id!
     didDocument = {
       // Note that did:key does not have its own method-specific context,
       // and only uses the general DID Core context, and key-specific contexts.
-      '@context': contexts,
+      '@context': [DID_CONTEXT_URL, ...contexts.slice(1)],
       id: did,
       verificationMethod: [verificationPublicKey],
-      authentication: [verificationPublicKey.id],
-      assertionMethod: [verificationPublicKey.id],
-      capabilityDelegation: [verificationPublicKey.id],
-      capabilityInvocation: [verificationPublicKey.id]
+      authentication: [verificationMethodId],
+      assertionMethod: [verificationMethodId],
+      capabilityDelegation: [verificationMethodId],
+      capabilityInvocation: [verificationMethodId]
     }
     if (publicDhKey) {
       didDocument.keyAgreement = [publicDhKey]
     }
     // create the key pairs map
-    keyPairs.set(verificationKeyPair.id, verificationKeyPair)
+    keyPairs.set(verificationKeyPair.id!, verificationKeyPair)
     if (keyAgreementKeyPair) {
       keyPairs.set(keyAgreementKeyPair.id, keyAgreementKeyPair)
     }
@@ -467,7 +480,7 @@ export class DidKeyDriver {
    *
    * @returns {Promise<string>} Returns the key's id.
    */
-  async computeId({ keyPair }: { keyPair: any }): Promise<string> {
+  async computeId({ keyPair }: { keyPair: KeyPair }): Promise<string> {
     return `did:key:${keyPair.fingerprint()}#${keyPair.fingerprint()}`
   }
 }

@@ -14,9 +14,6 @@ function driver(): DidKeyDriver {
 }
 
 export { createFromMultibase, driver, DidKeyDriver }
-export type {
-  DidDocument,
-  FromMultibase,
-  KeyPairClass,
-  VerificationMethod
-} from './types.js'
+export type { FromMultibase, KeyPairClass } from './types.js'
+export type { KeyPair } from '@digitalcredentials/keypair'
+export type { IDidDocument, IPublicKey } from '@digitalcredentials/ssi'
