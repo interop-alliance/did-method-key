@@ -11,13 +11,19 @@ import {
   getMultibaseMultikeyHeader,
   setKeyPairId
 } from './helpers.js'
-import type { DidDocument, FromMultibase, VerificationMethod } from './types.js'
+import type {
+  DidDocument,
+  FromMultibase,
+  KeyPairClass,
+  RegisteredKeyType,
+  VerificationMethod
+} from './types.js'
 
 const DID_CONTEXT_URL = 'https://www.w3.org/ns/did/v1'
 
 export class DidKeyDriver {
   method: string
-  _allowedKeyTypes: Map<string, FromMultibase>
+  _allowedKeyTypes: Map<string, RegisteredKeyType>
 
   constructor() {
     // used by did-io to register drivers
@@ -26,22 +32,51 @@ export class DidKeyDriver {
   }
 
   /**
-   * Registers a multibase-multikey header and a multibase-multikey
-   * deserializer that is allowed to handle data using that header.
+   * Registers a key type that this driver is allowed to handle, for both
+   * resolution (`get()`) and generation (`generate()`).
+   *
+   * Preferred form: pass a `keyPairClass` (a KeyPair suite class). The driver
+   * reads the multibase-multikey header, deserializer, and generator off the
+   * class, so the caller never has to know the literal header.
+   *
+   * Lower-level form: pass a `multibaseMultikeyHeader` plus a `fromMultibase`
+   * deserializer directly. Use this for suites that do not expose the
+   * `keyPairClass` contract. Key types registered this way support resolution
+   * but not `generate()`.
    *
    * @param options {object} - Options hashmap.
-   * @param options.multibaseMultikeyHeader {string} - The multibase-multikey
-   *   header to register.
-   * @param options.fromMultibase {Function} - A function that converts a
-   *  `{publicKeyMultibase}` value into a key pair interface.
+   * @param [options.keyPairClass] {KeyPairClass} - A KeyPair suite class
+   *   exposing static `multibaseHeader`, `from`, and (optionally) `generate`.
+   * @param [options.multibaseMultikeyHeader] {string} - The multibase-multikey
+   *   header to register (lower-level form).
+   * @param [options.fromMultibase] {Function} - A function that converts a
+   *   `{publicKeyMultibase}` value into a key pair interface (lower-level form).
    */
   use({
+    keyPairClass,
     multibaseMultikeyHeader,
     fromMultibase
   }: {
+    keyPairClass?: KeyPairClass
     multibaseMultikeyHeader?: string
     fromMultibase?: FromMultibase
   } = {}): void {
+    if (keyPairClass) {
+      const header = keyPairClass.multibaseHeader
+      if (!(header && typeof header === 'string')) {
+        throw new TypeError('"keyPairClass.multibaseHeader" must be a string.')
+      }
+      if (typeof keyPairClass.from !== 'function') {
+        throw new TypeError('"keyPairClass.from" must be a function.')
+      }
+      this._allowedKeyTypes.set(header, {
+        fromMultibase: keyPairClass.from,
+        generate: keyPairClass.generate
+          ? keyPairClass.generate.bind(keyPairClass)
+          : undefined
+      })
+      return
+    }
     if (
       !(multibaseMultikeyHeader && typeof multibaseMultikeyHeader === 'string')
     ) {
@@ -50,7 +85,67 @@ export class DidKeyDriver {
     if (typeof fromMultibase !== 'function') {
       throw new TypeError('"fromMultibase" must be a function.')
     }
-    this._allowedKeyTypes.set(multibaseMultikeyHeader, fromMultibase)
+    this._allowedKeyTypes.set(multibaseMultikeyHeader, { fromMultibase })
+  }
+
+  /**
+   * Generates a new key pair and returns its `did:key` method DID Document.
+   * Requires a suite registered via `use({ keyPairClass })`, since the
+   * lower-level `fromMultibase` registration has no key generator.
+   *
+   * @param options {object} - Options hashmap.
+   * @param [options.keyType] {KeyPairClass | string} - Selects which registered
+   *   suite to generate with, as either a KeyPair class or its
+   *   multibase-multikey header. Optional when exactly one suite is registered;
+   *   required (to disambiguate) when more than one is registered.
+   * @param [options.keyAgreementKeyPair] {object} - Optional keyAgreement key
+   *   pair, passed through to `fromKeyPair()`.
+   *
+   * @returns {Promise<{didDocument: DidDocument, keyPairs: Map<string, any>,
+   *   methodFor: Function}>} Resolves with the generated DID Document and the
+   *   corresponding key pairs (for storage in a KMS).
+   */
+  async generate({
+    keyType,
+    keyAgreementKeyPair,
+    ...generateOptions
+  }: {
+    keyType?: KeyPairClass | string
+    keyAgreementKeyPair?: any
+    [key: string]: unknown
+  } = {}): Promise<{
+    didDocument: DidDocument
+    keyPairs: Map<string, any>
+    methodFor: (options: { purpose: string }) => any
+  }> {
+    let multibaseMultikeyHeader: string | undefined
+    if (keyType) {
+      multibaseMultikeyHeader =
+        typeof keyType === 'string' ? keyType : keyType.multibaseHeader
+    } else if (this._allowedKeyTypes.size === 1) {
+      ;[multibaseMultikeyHeader] = this._allowedKeyTypes.keys()
+    } else if (this._allowedKeyTypes.size === 0) {
+      throw new Error('No key suite registered; call "use({keyPairClass})".')
+    } else {
+      throw new Error(
+        'Multiple key suites registered; specify which via "keyType".'
+      )
+    }
+
+    const registered = this._allowedKeyTypes.get(multibaseMultikeyHeader!)
+    if (!registered) {
+      throw new Error(
+        `Unsupported "multibaseMultikeyHeader", "${multibaseMultikeyHeader}".`
+      )
+    }
+    if (!registered.generate) {
+      throw new Error(
+        `Registered suite "${multibaseMultikeyHeader}" cannot generate keys; ` +
+          'register it via "use({keyPairClass})".'
+      )
+    }
+    const verificationKeyPair = await registered.generate(generateOptions)
+    return this.fromKeyPair({ verificationKeyPair, keyAgreementKeyPair })
   }
 
   /**
@@ -180,14 +275,14 @@ export class DidKeyDriver {
       value: publicKeyMultibase
     })
 
-    const fromMultibase = this._allowedKeyTypes.get(multibaseMultikeyHeader)
-    if (!fromMultibase) {
+    const registered = this._allowedKeyTypes.get(multibaseMultikeyHeader)
+    if (!registered) {
       throw new Error(
         `Unsupported "multibaseMultikeyHeader", "${multibaseMultikeyHeader}".`
       )
     }
     const { keyAgreementKeyPair, keyPair } = await getKeyPair({
-      fromMultibase,
+      fromMultibase: registered.fromMultibase,
       publicKeyMultibase
     })
     const { didDocument } = await this._keyPairToDidDocument({
@@ -271,22 +366,32 @@ export class DidKeyDriver {
       }
       return { didDocument, keyPairs }
     }
-    let { publicKeyMultibase } = keyPair
-    if (!publicKeyMultibase && keyPair.publicKeyBase58) {
-      // handle backwards compatibility w/older key pair interfaces
-      publicKeyMultibase = await keyPair.fingerprint()
+    let verificationKeyPair: any
+    if (typeof keyPair.export === 'function') {
+      // A live key pair instance is self-describing, so use it directly. This
+      // is why fromKeyPair()/generate() do not require a prior use() call.
+      verificationKeyPair = keyPair
+    } else {
+      // A plain key description (e.g. from a KMS) must be rebuilt into a live
+      // instance using the registered deserializer for its multibase header.
+      let { publicKeyMultibase } = keyPair
+      if (!publicKeyMultibase && keyPair.publicKeyBase58) {
+        // handle backwards compatibility w/older key pair interfaces
+        publicKeyMultibase = await keyPair.fingerprint()
+      }
+      const multibaseMultikeyHeader = getMultibaseMultikeyHeader({
+        value: publicKeyMultibase
+      })
+      const registered = this._allowedKeyTypes.get(multibaseMultikeyHeader)
+      if (!registered) {
+        throw new Error(
+          `Unsupported "multibaseMultikeyHeader", "${multibaseMultikeyHeader}".`
+        )
+      }
+      verificationKeyPair = await registered.fromMultibase({
+        publicKeyMultibase
+      })
     }
-    // get the multibaseMultikeyHeader from the public key value
-    const multibaseMultikeyHeader = getMultibaseMultikeyHeader({
-      value: publicKeyMultibase
-    })
-    const fromMultibase = this._allowedKeyTypes.get(multibaseMultikeyHeader)
-    if (!fromMultibase) {
-      throw new Error(
-        `Unsupported "multibaseMultikeyHeader", "${multibaseMultikeyHeader}".`
-      )
-    }
-    const verificationKeyPair = await fromMultibase({ publicKeyMultibase })
 
     const did = getDid({ keyPair: verificationKeyPair })
     verificationKeyPair.controller = did
