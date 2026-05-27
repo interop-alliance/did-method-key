@@ -98,6 +98,9 @@ export class DidKeyDriver {
    *   suite to generate with, as either a KeyPair class or its
    *   multibase-multikey header. Optional when exactly one suite is registered;
    *   required (to disambiguate) when more than one is registered.
+   * @param [options.seed] {Uint8Array} - An optional secret-key seed, passed
+   *   through to the registered suite's `generate()` to deterministically
+   *   derive the key pair. When omitted, the suite generates a random key pair.
    * @param [options.keyAgreementKeyPair] {object} - Optional keyAgreement key
    *   pair, passed through to `fromKeyPair()`.
    *
@@ -107,10 +110,12 @@ export class DidKeyDriver {
    */
   async generate({
     keyType,
+    seed,
     keyAgreementKeyPair,
     ...generateOptions
   }: {
     keyType?: KeyPairClass | string
+    seed?: Uint8Array
     keyAgreementKeyPair?: any
     [key: string]: unknown
   } = {}): Promise<{
@@ -144,7 +149,10 @@ export class DidKeyDriver {
           'register it via "use({keyPairClass})".'
       )
     }
-    const verificationKeyPair = await registered.generate(generateOptions)
+    const verificationKeyPair = await registered.generate({
+      seed,
+      ...generateOptions
+    })
     return this.fromKeyPair({ verificationKeyPair, keyAgreementKeyPair })
   }
 

@@ -362,6 +362,24 @@ describe('did:key method driver', () => {
       expect(fetchedDidDoc).toEqual(didDocument)
     })
 
+    it('deterministically generates from a seed', async () => {
+      const localDriver = driver()
+      localDriver.use({ keyPairClass: Ed25519VerificationKey })
+
+      const seed = new Uint8Array(32).fill(1)
+      const first: any = await localDriver.generate({ seed })
+      const second: any = await localDriver.generate({ seed })
+
+      expect(first.didDocument.id).toMatch(/^did:key:z6Mk/)
+      // Same seed yields the same DID Document.
+      expect(first.didDocument).toEqual(second.didDocument)
+      // A different seed yields a different DID.
+      const other: any = await localDriver.generate({
+        seed: new Uint8Array(32).fill(2)
+      })
+      expect(other.didDocument.id).not.toBe(first.didDocument.id)
+    })
+
     it('selects a suite via keyType when several are registered', async () => {
       const localDriver = driver()
       localDriver.use({ keyPairClass: Ed25519VerificationKey })
