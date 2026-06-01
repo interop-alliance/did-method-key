@@ -15,4 +15,3 @@ function driver(): DidKeyDriver {
 
 export { createFromMultibase, driver, DidKeyDriver }
 export type { FromMultibase, KeyPairClass } from './types.js'
-export type { IDidDocument, IPublicKey } from '@interop/data-integrity-core'

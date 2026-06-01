@@ -1,5 +1,34 @@
 # @interop/did-method-key ChangeLog
 
+## 7.0.0 - 2026-06-01
+
+### Changed
+- **BREAKING**: Swap dependencies to `@interop/data-integrity-core`, dropping
+  `@digitalcredentials/ssi` and `@digitalcredentials/keypair` (both now folded
+  into `data-integrity-core`). The `KeyPair` abstract class is renamed to
+  `AbstractKeyPair`; the `IDidDocument` / `IPublicKey` / `IKeyPair` / `IDID`
+  types are now imported from `@interop/data-integrity-core`, and the former
+  `IKeyIdOrObject` is now `IVerificationMethodEntry`. Mirrors
+  `@interop/ed25519-verification-key@7.0.0` and `@interop/did-io@4.0.0`.
+- **BREAKING**: Require `@interop/did-io` `^4.0.0` and
+  `@interop/ed25519-verification-key` `^7.0.0`.
+- Verification key-pair instances, the `keyPairs` map
+  (`Map<string, AbstractKeyPair>`), and `methodFor()` / `computeId()` are now
+  typed with `AbstractKeyPair`; instance-or-description inputs are typed
+  `AbstractKeyPair | IKeyPair`. The X25519 key-agreement path
+  (`@digitalbazaar/x25519-key-agreement-key-2020`) remains `any`.
+- Accommodate stricter `data-integrity-core` DID-document types: a suite's
+  exported `@context` may be `string | string[]` (spread into the document
+  contexts), and the exported public key is cast to `IVerificationMethod` when
+  placed into `verificationMethod`.
+
+### Removed
+- **BREAKING**: No longer re-export `data-integrity-core` types from the package
+  entrypoint -- the previously re-exported `KeyPair` (now `AbstractKeyPair`),
+  `IDidDocument`, and `IPublicKey` are gone. Import them directly from
+  `@interop/data-integrity-core`. The package's own `FromMultibase` and
+  `KeyPairClass` types are still exported.
+
 ## 6.2.0-6.2.1 - 2026-05-27
 
 ### Changed
