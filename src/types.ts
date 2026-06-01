@@ -1,7 +1,7 @@
 /*!
  * Copyright (c) 2021-2026 Digital Bazaar, Inc. All rights reserved.
  */
-import type { KeyPair } from '@digitalcredentials/keypair'
+import type { AbstractKeyPair } from '@interop/data-integrity-core'
 
 /**
  * A multibase-multikey deserializer: converts a `{publicKeyMultibase}` value
@@ -9,7 +9,7 @@ import type { KeyPair } from '@digitalcredentials/keypair'
  */
 export type FromMultibase = (options: {
   publicKeyMultibase: string
-}) => Promise<KeyPair>
+}) => Promise<AbstractKeyPair>
 
 /**
  * A KeyPair suite class usable for `did:key` generation and resolution via
@@ -20,7 +20,7 @@ export type FromMultibase = (options: {
 export interface KeyPairClass {
   multibaseHeader: string
   from: FromMultibase
-  generate?: (options?: object) => Promise<KeyPair>
+  generate?: (options?: object) => Promise<AbstractKeyPair>
 }
 
 /**
@@ -29,5 +29,5 @@ export interface KeyPairClass {
  */
 export interface RegisteredKeyType {
   fromMultibase: FromMultibase
-  generate?: (options?: object) => Promise<KeyPair>
+  generate?: (options?: object) => Promise<AbstractKeyPair>
 }

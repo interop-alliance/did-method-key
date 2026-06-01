@@ -1,4 +1,5 @@
 minimumReleaseAgeExclude:
   - '@interop/lru-memoize@4.0.2'
-  - '@interop/ed25519-verification-key@6.2.0'
-  - '@interop/did-io@3.0.0'
+  - '@interop/ed25519-verification-key@7.0.0'
+  - '@interop/did-io@4.0.0'
+  - '@interop/data-integrity-core@6.0.2'
