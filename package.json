@@ -35,10 +35,9 @@
   "sideEffects": false,
   "dependencies": {
     "@digitalbazaar/x25519-key-agreement-key-2020": "^3.0.1",
-    "@digitalcredentials/keypair": "^3.0.0",
-    "@digitalcredentials/ssi": "^5.4.2",
-    "@interop/did-io": "^3.0.0",
-    "@interop/ed25519-verification-key": "^6.2.0"
+    "@interop/data-integrity-core": "^6.0.2",
+    "@interop/did-io": "^4.0.0",
+    "@interop/ed25519-verification-key": "^7.0.0"
   },
   "devDependencies": {
     "@digitalbazaar/ecdsa-multikey": "^1.8.0",

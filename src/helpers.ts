@@ -2,14 +2,14 @@
  * Copyright (c) 2023-2026 Digital Bazaar, Inc. All rights reserved.
  */
 import { X25519KeyAgreementKey2020 } from '@digitalbazaar/x25519-key-agreement-key-2020'
-import type { KeyPair } from '@digitalcredentials/keypair'
 import type {
+  AbstractKeyPair,
   IDID,
   IDidDocument,
-  IKeyIdOrObject,
   IKeyPair,
-  IPublicKey
-} from '@digitalcredentials/ssi'
+  IPublicKey,
+  IVerificationMethodEntry
+} from '@interop/data-integrity-core'
 import type { FromMultibase } from './types.js'
 
 /**
@@ -17,8 +17,8 @@ import type { FromMultibase } from './types.js'
  * model permits to be a single entry or an array) to an array.
  */
 function toArray(
-  value?: IKeyIdOrObject | IKeyIdOrObject[]
-): IKeyIdOrObject[] {
+  value?: IVerificationMethodEntry | IVerificationMethodEntry[]
+): IVerificationMethodEntry[] {
   if (value == null) {
     return []
   }
@@ -190,12 +190,12 @@ export async function getKeyPair({
 }: {
   fromMultibase?: FromMultibase
   publicKeyMultibase?: string
-  publicKeyDescription?: KeyPair | IKeyPair
+  publicKeyDescription?: AbstractKeyPair | IKeyPair
 } = {}): Promise<{
-  keyPair?: KeyPair | IKeyPair
+  keyPair?: AbstractKeyPair | IKeyPair
   keyAgreementKeyPair: any
 }> {
-  let keyPair: KeyPair | IKeyPair | undefined
+  let keyPair: AbstractKeyPair | IKeyPair | undefined
   if (fromMultibase && publicKeyMultibase) {
     keyPair = await fromMultibase({ publicKeyMultibase })
   } else {

@@ -11,8 +11,13 @@ import {
   getMultibaseMultikeyHeader,
   setKeyPairId
 } from './helpers.js'
-import type { KeyPair } from '@digitalcredentials/keypair'
-import type { IDidDocument, IKeyPair, IPublicKey } from '@digitalcredentials/ssi'
+import type {
+  AbstractKeyPair,
+  IDidDocument,
+  IKeyPair,
+  IPublicKey,
+  IVerificationMethod
+} from '@interop/data-integrity-core'
 import type {
   FromMultibase,
   KeyPairClass,
@@ -104,7 +109,7 @@ export class DidKeyDriver {
    * @param [options.keyAgreementKeyPair] {object} - Optional keyAgreement key
    *   pair, passed through to `fromKeyPair()`.
    *
-   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, KeyPair>,
+   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, AbstractKeyPair>,
    *   methodFor: Function}>} Resolves with the generated DID Document and the
    *   corresponding key pairs (for storage in a KMS).
    */
@@ -120,8 +125,8 @@ export class DidKeyDriver {
     [key: string]: unknown
   } = {}): Promise<{
     didDocument: IDidDocument
-    keyPairs: Map<string, KeyPair>
-    methodFor: (options: { purpose: string }) => KeyPair
+    keyPairs: Map<string, AbstractKeyPair>
+    methodFor: (options: { purpose: string }) => AbstractKeyPair
   }> {
     let multibaseMultikeyHeader: string | undefined
     if (keyType) {
@@ -163,7 +168,7 @@ export class DidKeyDriver {
    * @param [options.verificationKeyPair] {object} - A verification KeyPair.
    * @param [options.keyAgreementKeyPair] {object} - A keyAgreement KeyPair.
    *
-   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, KeyPair>,
+   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, AbstractKeyPair>,
    *   methodFor: Function}>} Resolves with the generated DID Document, along
    *   with the corresponding key pairs used to generate it (for storage in a
    *   KMS).
@@ -172,12 +177,12 @@ export class DidKeyDriver {
     verificationKeyPair,
     keyAgreementKeyPair
   }: {
-    verificationKeyPair?: KeyPair | IKeyPair
+    verificationKeyPair?: AbstractKeyPair | IKeyPair
     keyAgreementKeyPair?: any
   } = {}): Promise<{
     didDocument: IDidDocument
-    keyPairs: Map<string, KeyPair>
-    methodFor: (options: { purpose: string }) => KeyPair
+    keyPairs: Map<string, AbstractKeyPair>
+    methodFor: (options: { purpose: string }) => AbstractKeyPair
   }> {
     if (!(verificationKeyPair || keyAgreementKeyPair)) {
       throw new TypeError(
@@ -194,7 +199,7 @@ export class DidKeyDriver {
 
     // convenience function that returns the public/private key pair instance
     // for a given purpose (authentication, assertionMethod, keyAgreement, etc).
-    const methodFor = ({ purpose }: { purpose: string }): KeyPair => {
+    const methodFor = ({ purpose }: { purpose: string }): AbstractKeyPair => {
       const { id: methodId } = this.publicMethodFor({
         didDocument,
         purpose
@@ -323,7 +328,7 @@ export class DidKeyDriver {
   async publicKeyToDidDoc({
     publicKeyDescription
   }: {
-    publicKeyDescription?: KeyPair | IKeyPair
+    publicKeyDescription?: AbstractKeyPair | IKeyPair
   } = {}): Promise<{ didDocument: IDidDocument }> {
     const { keyPair, keyAgreementKeyPair } = await getKeyPair({
       publicKeyDescription
@@ -345,7 +350,7 @@ export class DidKeyDriver {
    * @param [options.keyAgreementKeyPair] {object} - Optional
    *   keyAgreement key pair for generating did for keyAgreement.
    *
-   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, KeyPair>}>}
+   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, AbstractKeyPair>}>}
    *   Resolves with the generated DID Document, along with the corresponding
    *   key pairs used to generate it (for storage in a KMS).
    */
@@ -353,13 +358,13 @@ export class DidKeyDriver {
     keyPair,
     keyAgreementKeyPair
   }: {
-    keyPair?: KeyPair | IKeyPair
+    keyPair?: AbstractKeyPair | IKeyPair
     keyAgreementKeyPair?: any
   } = {}): Promise<{
     didDocument: IDidDocument
-    keyPairs: Map<string, KeyPair>
+    keyPairs: Map<string, AbstractKeyPair>
   }> {
-    const keyPairs = new Map<string, KeyPair>()
+    const keyPairs = new Map<string, AbstractKeyPair>()
     let didDocument: IDidDocument
     let publicDhKey
     const contexts: string[] = [DID_CONTEXT_URL]
@@ -378,7 +383,7 @@ export class DidKeyDriver {
       return { didDocument, keyPairs }
     }
     const sourceKeyPair = keyPair!
-    let verificationKeyPair: KeyPair
+    let verificationKeyPair: AbstractKeyPair
     if ('export' in sourceKeyPair && typeof sourceKeyPair.export === 'function') {
       // A live key pair instance is self-describing, so use it directly. This
       // is why fromKeyPair()/generate() do not require a prior use() call.
@@ -421,7 +426,12 @@ export class DidKeyDriver {
     })
     const verificationContext = verificationPublicKey['@context']
     if (verificationContext) {
-      contexts.push(verificationContext)
+      // the suite's exported `@context` may be a single URL or an array
+      contexts.push(
+        ...(Array.isArray(verificationContext)
+          ? verificationContext
+          : [verificationContext])
+      )
     }
     // delete context from verificationPublicKey
     delete verificationPublicKey['@context']
@@ -453,7 +463,7 @@ export class DidKeyDriver {
       // and only uses the general DID Core context, and key-specific contexts.
       '@context': [DID_CONTEXT_URL, ...contexts.slice(1)],
       id: did,
-      verificationMethod: [verificationPublicKey],
+      verificationMethod: [verificationPublicKey as IVerificationMethod],
       authentication: [verificationMethodId],
       assertionMethod: [verificationMethodId],
       capabilityDelegation: [verificationMethodId],
@@ -480,7 +490,7 @@ export class DidKeyDriver {
    *
    * @returns {Promise<string>} Returns the key's id.
    */
-  async computeId({ keyPair }: { keyPair: KeyPair }): Promise<string> {
+  async computeId({ keyPair }: { keyPair: AbstractKeyPair }): Promise<string> {
     return `did:key:${keyPair.fingerprint()}#${keyPair.fingerprint()}`
   }
 }
