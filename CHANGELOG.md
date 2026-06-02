@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 7.1.0 - TBD
+## 7.1.0 - 2026-06-01
 
 ### Changed
 - `DidKeyDriver` now `implements` the `DidMethodDriver` interface from
