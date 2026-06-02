@@ -12,14 +12,14 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       '@interop/data-integrity-core':
-        specifier: ^6.0.2
-        version: 6.0.2
+        specifier: ^6.1.0
+        version: 6.1.0
       '@interop/did-io':
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^4.0.1
+        version: 4.0.1
       '@interop/ed25519-verification-key':
-        specifier: ^7.0.0
-        version: 7.0.0
+        specifier: ^7.0.1
+        version: 7.0.1
     devDependencies:
       '@digitalbazaar/ecdsa-multikey':
         specifier: ^1.8.0
@@ -177,16 +177,16 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@interop/data-integrity-core@6.0.2':
-    resolution: {integrity: sha512-mAT8iHzrIbjRbtohUHdTYRSWtZtJnar3E6Ol1mrj6odK9fYbp0NHEmkUT3M+weQK+JevZsLcetcWhbs590xMsA==}
+  '@interop/data-integrity-core@6.1.0':
+    resolution: {integrity: sha512-kxm+1pfN1f9gxAxUdxeq0zhq1H54fTJQhpWGc13OD6CAjUWm+d36+fQFkA+uC63/hF9R9vVUbjKqwSiC3/kyqg==}
     engines: {node: '>=24.0'}
 
-  '@interop/did-io@4.0.0':
-    resolution: {integrity: sha512-ZEiaUEE721+mYopd0FCi68+3N6/baPsDhIpryb13DAtcWrixk+Goh5/dyHpdn492rjPZOp4BukxCCHL149To+Q==}
+  '@interop/did-io@4.0.1':
+    resolution: {integrity: sha512-wr1Zupmt/x8cQXJAXEa0ziHwjkEGC/KrtkyIg6emprA/eUGe/fULOW8TFArXXsL7vRQSX1IllQX0QcbQuKFuxg==}
     engines: {node: '>=24.0'}
 
-  '@interop/ed25519-verification-key@7.0.0':
-    resolution: {integrity: sha512-DMXmxbxODFCw6h17N7VS9jmpQ3aq5yEurLD0B8mKK6TY7r6CfD7oaEdhTEQGqQNU1W2g2lO5ax9lwnJpiLts0A==}
+  '@interop/ed25519-verification-key@7.0.1':
+    resolution: {integrity: sha512-CqCJlNaBMmj3sPqo1291aAObKQlJINjUnTur2aGS6rFBLWtsUQCqPxAiSLn1HythmwuB7x+al6bRnmt7ZCAAEg==}
     engines: {node: '>=20'}
 
   '@interop/lru-memoize@4.0.2':
@@ -1179,16 +1179,16 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@interop/data-integrity-core@6.0.2': {}
+  '@interop/data-integrity-core@6.1.0': {}
 
-  '@interop/did-io@4.0.0':
+  '@interop/did-io@4.0.1':
     dependencies:
-      '@interop/data-integrity-core': 6.0.2
+      '@interop/data-integrity-core': 6.1.0
       '@interop/lru-memoize': 4.0.2
 
-  '@interop/ed25519-verification-key@7.0.0':
+  '@interop/ed25519-verification-key@7.0.1':
     dependencies:
-      '@interop/data-integrity-core': 6.0.2
+      '@interop/data-integrity-core': 6.1.0
       '@noble/ed25519': 3.1.0
       '@noble/hashes': 2.2.0
       '@scure/base': 2.2.0

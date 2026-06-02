@@ -1,5 +1,16 @@
 # @interop/did-method-key ChangeLog
 
+## 7.1.0 - TBD
+
+### Changed
+- `DidKeyDriver` now `implements` the `DidMethodDriver` interface from
+  `@interop/did-io` (`^4.0.1`). The `generate()` and `fromKeyPair()` return
+  types are declared as did-io's `DidGenerationResult`; `get()` accepts
+  `did?: IDID | string`, `publicKeyToDidDoc()` accepts an `IPublicKey`
+  `publicKeyDescription`, and `fromKeyPair()`/`generate()` type their
+  `keyAgreementKeyPair` as `AbstractKeyPair | IKeyPair` (matching the
+  interface) rather than `any`.
+
 ## 7.0.0 - 2026-06-01
 
 ### Changed

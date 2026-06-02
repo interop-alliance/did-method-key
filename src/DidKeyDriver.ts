@@ -11,8 +11,10 @@ import {
   getMultibaseMultikeyHeader,
   setKeyPairId
 } from './helpers.js'
+import type { DidGenerationResult, DidMethodDriver } from '@interop/did-io'
 import type {
   AbstractKeyPair,
+  IDID,
   IDidDocument,
   IKeyPair,
   IPublicKey,
@@ -26,7 +28,7 @@ import type {
 
 const DID_CONTEXT_URL = 'https://www.w3.org/ns/did/v1'
 
-export class DidKeyDriver {
+export class DidKeyDriver implements DidMethodDriver {
   method: string
   _allowedKeyTypes: Map<string, RegisteredKeyType>
 
@@ -121,13 +123,9 @@ export class DidKeyDriver {
   }: {
     keyType?: KeyPairClass | string
     seed?: Uint8Array
-    keyAgreementKeyPair?: any
+    keyAgreementKeyPair?: AbstractKeyPair | IKeyPair
     [key: string]: unknown
-  } = {}): Promise<{
-    didDocument: IDidDocument
-    keyPairs: Map<string, AbstractKeyPair>
-    methodFor: (options: { purpose: string }) => AbstractKeyPair
-  }> {
+  } = {}): Promise<DidGenerationResult> {
     let multibaseMultikeyHeader: string | undefined
     if (keyType) {
       multibaseMultikeyHeader =
@@ -178,12 +176,8 @@ export class DidKeyDriver {
     keyAgreementKeyPair
   }: {
     verificationKeyPair?: AbstractKeyPair | IKeyPair
-    keyAgreementKeyPair?: any
-  } = {}): Promise<{
-    didDocument: IDidDocument
-    keyPairs: Map<string, AbstractKeyPair>
-    methodFor: (options: { purpose: string }) => AbstractKeyPair
-  }> {
+    keyAgreementKeyPair?: AbstractKeyPair | IKeyPair
+  } = {}): Promise<DidGenerationResult> {
     if (!(verificationKeyPair || keyAgreementKeyPair)) {
       throw new TypeError(
         '"verificationKeyPair" or "keyAgreementKeyPair" must be an object.'
@@ -274,7 +268,7 @@ export class DidKeyDriver {
     did,
     url
   }: {
-    did?: string
+    did?: IDID | string
     url?: string
   } = {}): Promise<IDidDocument | IPublicKey> {
     did = did || url
@@ -328,7 +322,7 @@ export class DidKeyDriver {
   async publicKeyToDidDoc({
     publicKeyDescription
   }: {
-    publicKeyDescription?: AbstractKeyPair | IKeyPair
+    publicKeyDescription?: AbstractKeyPair | IKeyPair | IPublicKey
   } = {}): Promise<{ didDocument: IDidDocument }> {
     const { keyPair, keyAgreementKeyPair } = await getKeyPair({
       publicKeyDescription
