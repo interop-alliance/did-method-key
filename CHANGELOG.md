@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 7.1.1 -
+## 7.1.1 - 2026-06-03
 
 ### Fixed
 - Add default export to `package.json`.
