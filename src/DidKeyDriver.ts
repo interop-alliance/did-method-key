@@ -20,11 +20,7 @@ import type {
   IPublicKey,
   IVerificationMethod
 } from '@interop/data-integrity-core'
-import type {
-  FromMultibase,
-  KeyPairClass,
-  RegisteredKeyType
-} from './types.js'
+import type { FromMultibase, KeyPairClass, RegisteredKeyType } from './types.js'
 
 const DID_CONTEXT_URL = 'https://www.w3.org/ns/did/v1'
 
@@ -58,15 +54,24 @@ export class DidKeyDriver implements DidMethodDriver {
    *   header to register (lower-level form).
    * @param [options.fromMultibase] {Function} - A function that converts a
    *   `{publicKeyMultibase}` value into a key pair interface (lower-level form).
+   * @param [options.enableEncryptionKeyDerivation] {boolean} - When `true`,
+   *   resolving a `did:key` for this (Ed25519) key type also derives an X25519
+   *   keyAgreement key from the verification key and adds it to the DID
+   *   document, matching the did:key spec's Ed25519 expansion. Off by default,
+   *   since reusing one key for both signing and key agreement is a weaker
+   *   security posture; enable it only when you knowingly need to encrypt to
+   *   plain Ed25519 `did:key` identities (e.g. JWE/DIDComm/EDV recipients).
    */
   use({
     keyPairClass,
     multibaseMultikeyHeader,
-    fromMultibase
+    fromMultibase,
+    enableEncryptionKeyDerivation = false
   }: {
     keyPairClass?: KeyPairClass
     multibaseMultikeyHeader?: string
     fromMultibase?: FromMultibase
+    enableEncryptionKeyDerivation?: boolean
   } = {}): void {
     if (keyPairClass) {
       const header = keyPairClass.multibaseHeader
@@ -80,7 +85,8 @@ export class DidKeyDriver implements DidMethodDriver {
         fromMultibase: keyPairClass.from,
         generate: keyPairClass.generate
           ? keyPairClass.generate.bind(keyPairClass)
-          : undefined
+          : undefined,
+        enableEncryptionKeyDerivation
       })
       return
     }
@@ -92,7 +98,10 @@ export class DidKeyDriver implements DidMethodDriver {
     if (typeof fromMultibase !== 'function') {
       throw new TypeError('"fromMultibase" must be a function.')
     }
-    this._allowedKeyTypes.set(multibaseMultikeyHeader, { fromMultibase })
+    this._allowedKeyTypes.set(multibaseMultikeyHeader, {
+      fromMultibase,
+      enableEncryptionKeyDerivation
+    })
   }
 
   /**
@@ -378,7 +387,10 @@ export class DidKeyDriver implements DidMethodDriver {
     }
     const sourceKeyPair = keyPair!
     let verificationKeyPair: AbstractKeyPair
-    if ('export' in sourceKeyPair && typeof sourceKeyPair.export === 'function') {
+    if (
+      'export' in sourceKeyPair &&
+      typeof sourceKeyPair.export === 'function'
+    ) {
       // A live key pair instance is self-describing, so use it directly. This
       // is why fromKeyPair()/generate() do not require a prior use() call.
       verificationKeyPair = sourceKeyPair
@@ -429,10 +441,18 @@ export class DidKeyDriver implements DidMethodDriver {
     }
     // delete context from verificationPublicKey
     delete verificationPublicKey['@context']
-    // get the keyAgreement keypair
-    if (!keyAgreementKeyPair) {
+    // derive the keyAgreement keypair from the verification key, but only when
+    // the verification key's suite was registered with
+    // `enableEncryptionKeyDerivation: true` (opt-in, off by default)
+    const { enableEncryptionKeyDerivation } =
+      this._allowedKeyTypes.get(
+        getMultibaseMultikeyHeader({
+          value: (verificationPublicKey as { publicKeyMultibase?: string })
+            .publicKeyMultibase!
+        })
+      ) ?? {}
+    if (!keyAgreementKeyPair && enableEncryptionKeyDerivation) {
       ;({ keyAgreementKeyPair } = await getKeyAgreementKeyPair({
-        contexts,
         verificationPublicKey
       }))
     }

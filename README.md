@@ -78,15 +78,18 @@ That DID would correspond to the following DID Document:
 
 By default this driver represents verification keys as W3C
 [`Multikey`](https://www.w3.org/TR/cid-1.0/#Multikey) verification methods, and
-does not derive a separate `keyAgreement` (X25519) key.
+does **not** derive a separate `keyAgreement` (X25519) key. Reusing a single key
+for both signing (Ed25519) and key agreement (X25519) is a weaker security
+posture, so derivation is off by default.
 
-If you register a verification suite that exports the legacy
-`Ed25519VerificationKey2020` shape, the driver will additionally derive a
-Curve25519 `keyAgreement` public key (suitable for Diffie-Hellman key exchange)
-from the source Ed25519 key, using
-[`ed2curve-js`](https://github.com/dchest/ed2curve-js). Note that this derived
-key is optional -- there's at least
-[one proof](https://eprint.iacr.org/2021/509) that this is safe to do.
+If you need to encrypt to plain Ed25519 `did:key` identities (for example,
+JWE/DIDComm/EDV recipients), you can opt in per registration by passing
+`enableEncryptionKeyDerivation: true` to [`use()`](#use). When enabled, resolving
+an Ed25519 `did:key` additionally derives a Curve25519 `keyAgreement` public key
+(suitable for Diffie-Hellman key exchange) from the source Ed25519 key, matching
+the did:key spec's Ed25519 expansion. Note that this derived key is optional --
+there's at least [one proof](https://eprint.iacr.org/2021/509) that deriving it
+is safe to do.
 
 ## Install
 
@@ -144,6 +147,44 @@ didKeyDriverMultikey.use({
   fromMultibase: EcdsaMultikey.from
 })
 ```
+
+#### Deriving a `keyAgreement` key (opt-in)
+
+By default, resolving an Ed25519 `did:key` does not produce a `keyAgreement`
+(X25519) key. To have the driver derive one from the Ed25519 verification key
+and add it to the DID Document, pass `enableEncryptionKeyDerivation: true` when
+registering the Ed25519 suite:
+
+```js
+import { driver } from '@interop/did-method-key'
+import { Ed25519VerificationKey } from '@interop/ed25519-verification-key'
+
+const didKeyDriver = driver()
+
+didKeyDriver.use({
+  keyPairClass: Ed25519VerificationKey,
+  enableEncryptionKeyDerivation: true
+})
+
+const did = 'did:key:z6MkwLz9d2sa3FJjni9A7rXmicf9NN3e5xgJPUmdqaFMTgoE'
+const didDocument = await didKeyDriver.get({ did })
+
+didDocument.keyAgreement
+// => [
+//   {
+//     id: 'did:key:z6MkwLz9d2sa3FJjni9A7rXmicf9NN3e5xgJPUmdqaFMTgoE#z6LSmgLugoC8vUoK1ouCTGKdqFdpg5jb3H193L6wFJucX14U',
+//     type: 'X25519KeyAgreementKey2020',
+//     controller: 'did:key:z6MkwLz9d2sa3FJjni9A7rXmicf9NN3e5xgJPUmdqaFMTgoE',
+//     publicKeyMultibase: 'z6LSmgLugoC8vUoK1ouCTGKdqFdpg5jb3H193L6wFJucX14U'
+//   }
+// ]
+```
+
+The flag also works with the lower-level registration form (`use({
+multibaseMultikeyHeader: 'z6Mk', fromMultibase, enableEncryptionKeyDerivation:
+true })`). It is detected by the Ed25519 `z6Mk` multibase-multikey header, so it
+has no effect when set on a non-Ed25519 suite. See [Security](#security) for the
+rationale behind keeping derivation off by default.
 
 ### `createFromMultibase()`
 
@@ -265,7 +306,9 @@ This makes it useful for _verifying_ and _encrypting_ operations.
 
 Because the default `Multikey` representation does not derive a `keyAgreement`
 key, `methodFor({ purpose: 'keyAgreement' })` will throw for an ed25519 DID
-unless you explicitly supplied a `keyAgreementKeyPair` to `fromKeyPair()`.
+unless you explicitly supplied a `keyAgreementKeyPair` to `fromKeyPair()`, or
+registered the Ed25519 suite with
+[`enableEncryptionKeyDerivation: true`](#deriving-a-keyagreement-key-opt-in).
 
 ### `publicKeyToDidDoc()`
 
