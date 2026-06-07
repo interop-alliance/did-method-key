@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 7.2.0 - TBD
+## 7.2.0 - 2026-06-07
 
 ### Added
 - Add an opt-in `enableEncryptionKeyDerivation` flag to `DidKeyDriver.use()`
