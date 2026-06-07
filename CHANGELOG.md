@@ -1,5 +1,20 @@
 # @interop/did-method-key ChangeLog
 
+## 7.2.0 - TBD
+
+### Added
+- Add an opt-in `enableEncryptionKeyDerivation` flag to `DidKeyDriver.use()`
+  (default `false`). When enabled for an Ed25519 (`z6Mk`) registration,
+  resolving a `did:key` also derives an X25519 keyAgreement key from the
+  verification key and adds it to the DID document, matching the did:key spec's
+  Ed25519 expansion. Off by default, since reusing one key for both signing and
+  key agreement is a weaker security posture; enable it when you need to encrypt
+  to plain Ed25519 `did:key` identities (e.g. JWE/DIDComm/EDV recipients). The
+  flag is detected by the Ed25519 multibase-multikey header rather than the
+  suite `type`, so it works with both Multikey-style (`type: 'Multikey'`) and
+  legacy `Ed25519VerificationKey2020` suites, and is a no-op for non-Ed25519
+  registrations.
+
 ## 7.1.1 - 2026-06-03
 
 ### Fixed

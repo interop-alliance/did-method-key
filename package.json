@@ -12,7 +12,7 @@
     "lint": "eslint src test",
     "prepare": "pnpm run build",
     "rebuild": "pnpm run clear && pnpm run build",
-    "test": "pnpm run lint && pnpm run test-node && pnpm run test-browser",
+    "test": "pnpm run fix && pnpm run test-node && pnpm run test-browser",
     "test-browser": "playwright test",
     "test-node": "vitest run",
     "test-coverage": "vitest run --coverage"

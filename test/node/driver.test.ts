@@ -342,6 +342,87 @@ describe('did:key method driver', () => {
     })
   })
 
+  describe('use({ enableEncryptionKeyDerivation })', () => {
+    // An Ed25519 did:key and the X25519 keyAgreement key derived from it.
+    const did = 'did:key:z6MkwLz9d2sa3FJjni9A7rXmicf9NN3e5xgJPUmdqaFMTgoE'
+    const keyAgreementPublicKeyMultibase =
+      'z6LSmgLugoC8vUoK1ouCTGKdqFdpg5jb3H193L6wFJucX14U'
+    const keyAgreementKeyId = `${did}#${keyAgreementPublicKeyMultibase}`
+
+    it('does not derive an X25519 keyAgreement key by default', async () => {
+      const localDriver = driver()
+      localDriver.use({
+        multibaseMultikeyHeader: 'z6Mk',
+        fromMultibase: Ed25519VerificationKey.from
+      })
+
+      const didDocument: any = await localDriver.get({ did })
+      expect(didDocument.keyAgreement).toBeUndefined()
+    })
+
+    it('derives an X25519 keyAgreement key when enabled', async () => {
+      const localDriver = driver()
+      localDriver.use({
+        multibaseMultikeyHeader: 'z6Mk',
+        fromMultibase: Ed25519VerificationKey.from,
+        enableEncryptionKeyDerivation: true
+      })
+
+      const didDocument: any = await localDriver.get({ did })
+
+      expect(didDocument['@context']).toContain(
+        'https://w3id.org/security/suites/x25519-2020/v1'
+      )
+      const [kak] = didDocument.keyAgreement
+      expect(kak.id).toBe(keyAgreementKeyId)
+      expect(kak.type).toBe('X25519KeyAgreementKey2020')
+      expect(kak.controller).toBe(did)
+      expect(kak.publicKeyMultibase).toBe(keyAgreementPublicKeyMultibase)
+    })
+
+    it('resolves the derived keyAgreement key by its fragment', async () => {
+      const localDriver = driver()
+      localDriver.use({
+        multibaseMultikeyHeader: 'z6Mk',
+        fromMultibase: Ed25519VerificationKey.from,
+        enableEncryptionKeyDerivation: true
+      })
+
+      const key: any = await localDriver.get({ did: keyAgreementKeyId })
+      expect(key.id).toBe(keyAgreementKeyId)
+      expect(key.type).toBe('X25519KeyAgreementKey2020')
+      expect(key.controller).toBe(did)
+      expect(key.publicKeyMultibase).toBe(keyAgreementPublicKeyMultibase)
+    })
+
+    it('honors the flag via the keyPairClass registration form', async () => {
+      const localDriver = driver()
+      localDriver.use({
+        keyPairClass: Ed25519VerificationKey,
+        enableEncryptionKeyDerivation: true
+      })
+
+      const didDocument: any = await localDriver.get({ did })
+      expect(didDocument.keyAgreement[0].id).toBe(keyAgreementKeyId)
+    })
+
+    it('does not derive for non-Ed25519 suites even when enabled', async () => {
+      // The flag is detected by the Ed25519 `z6Mk` header, so enabling it on a
+      // non-Ed25519 suite (here ecdsa `zDna`) is a no-op rather than an error.
+      const ecdsaDid =
+        'did:key:zDnaeucDGfhXHoJVqot3p21RuupNJ2fZrs8Lb1GV83VnSo2jR'
+      const localDriver = driver()
+      localDriver.use({
+        multibaseMultikeyHeader: 'zDna',
+        fromMultibase: EcdsaMultikey.from,
+        enableEncryptionKeyDerivation: true
+      })
+
+      const didDocument: any = await localDriver.get({ did: ecdsaDid })
+      expect(didDocument.keyAgreement).toBeUndefined()
+    })
+  })
+
   describe('generate', () => {
     it('generates a new DID document from the sole registered suite', async () => {
       const localDriver = driver()
@@ -556,7 +637,9 @@ describe('did:key method driver', () => {
       }
 
       expect(error).toBeDefined()
-      expect(error!.message).toContain('No verification method found for purpose')
+      expect(error!.message).toContain(
+        'No verification method found for purpose'
+      )
     })
   })
 

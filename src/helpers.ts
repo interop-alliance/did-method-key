@@ -28,6 +28,8 @@ function toArray(
 const ED25519_KEY_2020_TYPE = 'Ed25519VerificationKey2020'
 const ED25519_KEY_2020_CONTEXT_URL =
   'https://w3id.org/security/suites/ed25519-2020/v1'
+// Multibase-multikey header (base58btc) for Ed25519 public keys.
+const ED25519_MULTIKEY_HEADER = 'z6Mk'
 
 const MULTIKEY_TYPE = 'Multikey'
 const MULTIKEY_CONTEXT_V1_URL = 'https://w3id.org/security/multikey/v1'
@@ -109,38 +111,33 @@ export function setKeyPairId({
 }
 
 export async function getKeyAgreementKeyPair({
-  contexts,
   verificationPublicKey
 }: {
-  contexts: string[]
   verificationPublicKey: IPublicKey
 }): Promise<{ keyAgreementKeyPair?: any }> {
-  // The KAK pair will use the source key's controller, but may generate
-  // its own .id
-  let keyAgreementKeyPair: any
+  // Detect Ed25519 by its multibase-multikey header (`z6Mk`) rather than the
+  // suite `type`: Multikey-style suites export `type: 'Multikey'` for ed25519
+  // keys, while the older 2020 suite reports `Ed25519VerificationKey2020`.
+  // Both encode the public key as a base58btc `z6Mk...` multibase value, which
+  // is all `fromEd25519VerificationKey2020()` needs to perform the conversion.
+  const publicKeyMultibase = (
+    verificationPublicKey as { publicKeyMultibase?: string }
+  ).publicKeyMultibase
+  const isEd25519 =
+    verificationPublicKey.type === ED25519_KEY_2020_TYPE ||
+    publicKeyMultibase?.startsWith(ED25519_MULTIKEY_HEADER)
 
-  if (verificationPublicKey.type === ED25519_KEY_2020_TYPE) {
-    contexts.push(X25519_2020_CONTEXT_URL)
+  if (!isEd25519) {
+    // Only Ed25519 verification keys can be converted into an X25519
+    // keyAgreement key; nothing to derive for other key types.
+    return { keyAgreementKeyPair: undefined }
   }
 
-  switch (verificationPublicKey.type) {
-    case ED25519_KEY_2020_TYPE: {
-      keyAgreementKeyPair = X25519KeyAgreementKey2020.fromEd25519VerificationKey2020(
-        { keyPair: verificationPublicKey }
-      )
-      break
-    }
-    case MULTIKEY_TYPE: {
-      // FIXME: Add keyAgreementKeyPair interface for Multikey.
-      break
-    }
-    default: {
-      throw new Error(
-        `Cannot derive key agreement key from verification key type
-          "${verificationPublicKey.type}".`
-      )
-    }
-  }
+  // The KAK pair reuses the source key's controller, but generates its own .id
+  const keyAgreementKeyPair =
+    X25519KeyAgreementKey2020.fromEd25519VerificationKey2020({
+      keyPair: verificationPublicKey
+    })
 
   return { keyAgreementKeyPair }
 }

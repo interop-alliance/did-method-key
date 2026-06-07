@@ -30,4 +30,11 @@ export interface KeyPairClass {
 export interface RegisteredKeyType {
   fromMultibase: FromMultibase
   generate?: (options?: object) => Promise<AbstractKeyPair>
+  /**
+   * When `true`, resolving a `did:key` for this key type also derives an
+   * X25519 keyAgreement key from the (Ed25519) verification key and adds it to
+   * the DID document. Off by default; only meaningful for Ed25519 (`z6Mk`)
+   * registrations. See `DidKeyDriver.use()`.
+   */
+  enableEncryptionKeyDerivation?: boolean
 }
