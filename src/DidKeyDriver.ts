@@ -370,7 +370,9 @@ export class DidKeyDriver implements DidMethodDriver {
     const keyPairs = new Map<string, AbstractKeyPair>()
     let didDocument: IDidDocument
     let publicDhKey
-    const contexts: string[] = [DID_CONTEXT_URL]
+    // data-integrity-core v8's `ILDContext` allows inline context objects, so a
+    // suite's exported `@context` entries may be strings or objects.
+    const contexts: Array<string | Record<string, unknown>> = [DID_CONTEXT_URL]
     if (!keyPair && keyAgreementKeyPair) {
       addKeyAgreementKeyContext({ contexts, keyAgreementKeyPair })
       const did = getDid({ keyPair: keyAgreementKeyPair })

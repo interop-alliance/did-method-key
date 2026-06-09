@@ -157,7 +157,7 @@ export function addKeyAgreementKeyContext({
   contexts,
   keyAgreementKeyPair
 }: {
-  contexts: string[]
+  contexts: Array<string | Record<string, unknown>>
   keyAgreementKeyPair: any
 }): void {
   const { type } = keyAgreementKeyPair
