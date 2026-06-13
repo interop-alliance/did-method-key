@@ -1,5 +1,11 @@
 # @interop/did-method-key ChangeLog
 
+## 7.3.2 - 2026-06-
+
+### Changed
+
+- Update to `@interop/data-integrity-core@8.0.0` and related.
+
 ## 7.3.0-7.3.1 - 2026-06-09
 
 ### Changed
