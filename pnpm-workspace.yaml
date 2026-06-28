@@ -1,2 +1,1 @@
 minimumReleaseAgeExclude:
-  - '@interop/did-io@4.0.5'
