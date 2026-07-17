@@ -90,9 +90,9 @@ export class DidKeyDriver implements DidMethodDriver {
       })
       return
     }
-    if (
-      !(multibaseMultikeyHeader && typeof multibaseMultikeyHeader === 'string')
-    ) {
+    if (!(
+      multibaseMultikeyHeader && typeof multibaseMultikeyHeader === 'string'
+    )) {
       throw new TypeError('"multibaseMultikeyHeader" must be a string.')
     }
     if (typeof fromMultibase !== 'function') {
