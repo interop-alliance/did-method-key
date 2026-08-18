@@ -12,14 +12,14 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       '@interop/data-integrity-core':
-        specifier: ^8.3.0
-        version: 8.3.0
+        specifier: ^8.7.1
+        version: 8.7.1
       '@interop/did-io':
-        specifier: ^4.1.0
-        version: 4.1.0
+        specifier: ^4.1.1
+        version: 4.1.1
       '@interop/ed25519-verification-key':
-        specifier: ^8.0.3
-        version: 8.0.3
+        specifier: ^8.0.4
+        version: 8.0.4
     devDependencies:
       '@digitalbazaar/ecdsa-multikey':
         specifier: ^1.8.0
@@ -177,16 +177,16 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@interop/data-integrity-core@8.3.0':
-    resolution: {integrity: sha512-8rYHqCHbYub8hh16HvQrJ8ozXHhv+t/gC0f6/JN9CLOdyL3EUTZOyKHjOKDRaelxjIplQG61LIUxGL3ihF1aXQ==}
+  '@interop/data-integrity-core@8.7.1':
+    resolution: {integrity: sha512-KD/AFAfnsDVa7Kz3yzx0t/L1A+GlFI0RahbtXsfzcznRlN63fPZCJ6W3C+unPyksCYsILZIHcOFFJkZe6eKtkw==}
     engines: {node: '>=24.0'}
 
-  '@interop/did-io@4.1.0':
-    resolution: {integrity: sha512-LVj9Y6DKiaUKu+lSNhcfd9k0vPakadyczSdnqZEfsjtF911rIJInAWxJlQJ+oRKZbGNu+zTXER2AfyzzfCVl9g==}
+  '@interop/did-io@4.1.1':
+    resolution: {integrity: sha512-uD5cnRLoDq5TJWNYASv3HomQXr2xW2TanQZ13TPcmRRo+r8QGPn/DY10kiXw+FYArrUorn8xxjsSSw7C2zS94w==}
     engines: {node: '>=24.0'}
 
-  '@interop/ed25519-verification-key@8.0.3':
-    resolution: {integrity: sha512-2RfyzZ9QyrdhVF994uylNacBu0apZwNlgIMFvCIni/CrJQHsMkX6MhzbXxenTuUNexTDpXPN3wFwDUT9jD4T2w==}
+  '@interop/ed25519-verification-key@8.0.4':
+    resolution: {integrity: sha512-Rban9niHY+MJSj3xrgsOmhYIzHz1TjmCsqOrrsyKr+Uk+xNwK1P9QA7RoR7wwjZ98o1rkD0wTl23wga81oY7hw==}
     engines: {node: '>=20'}
     peerDependencies:
       react-native-get-random-values: '>=1.8.0'
@@ -332,6 +332,9 @@ packages:
 
   '@scure/base@2.2.0':
     resolution: {integrity: sha512-b8XEupJibegiXV+tDUseI8oLQc8ei3d/4Jkb2RpbHh3MfE054ov3uIz2dhFkB3FI8iwYkEh0gGCApkrYggkPNg==}
+
+  '@scure/base@2.3.0':
+    resolution: {integrity: sha512-NsG6Y03tY6R5BUis4FdVtHVkur0U6FOzskgs9ZXNl78CUc9fkZ78HmENUle1nSOkCasDmbubmWD9qwB7mm4PZA==}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -1185,16 +1188,18 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@interop/data-integrity-core@8.3.0': {}
-
-  '@interop/did-io@4.1.0':
+  '@interop/data-integrity-core@8.7.1':
     dependencies:
-      '@interop/data-integrity-core': 8.3.0
+      '@scure/base': 2.3.0
+
+  '@interop/did-io@4.1.1':
+    dependencies:
+      '@interop/data-integrity-core': 8.7.1
       '@interop/lru-memoize': 4.0.3
 
-  '@interop/ed25519-verification-key@8.0.3':
+  '@interop/ed25519-verification-key@8.0.4':
     dependencies:
-      '@interop/data-integrity-core': 8.3.0
+      '@interop/data-integrity-core': 8.7.1
       '@noble/ed25519': 3.1.0
       '@noble/hashes': 2.2.0
       '@scure/base': 2.2.0
@@ -1283,6 +1288,8 @@ snapshots:
   '@rolldown/pluginutils@1.0.1': {}
 
   '@scure/base@2.2.0': {}
+
+  '@scure/base@2.3.0': {}
 
   '@standard-schema/spec@1.1.0': {}
 
