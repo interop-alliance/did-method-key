@@ -1,7 +1,7 @@
 /*!
  * Copyright (c) 2023-2026 Digital Bazaar, Inc. All rights reserved.
  */
-import { X25519KeyAgreementKey2020 } from '@digitalbazaar/x25519-key-agreement-key-2020'
+import { X25519KeyAgreementKey2020 } from '@interop/x25519-key-agreement-key'
 import type {
   AbstractKeyPair,
   IDID,

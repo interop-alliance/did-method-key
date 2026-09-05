@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@digitalbazaar/x25519-key-agreement-key-2020':
-        specifier: ^3.0.1
-        version: 3.0.1
       '@interop/data-integrity-core':
         specifier: ^8.7.1
         version: 8.7.1
@@ -18,8 +15,11 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
       '@interop/ed25519-verification-key':
-        specifier: ^8.0.4
-        version: 8.0.4
+        specifier: ^8.1.0
+        version: 8.1.0
+      '@interop/x25519-key-agreement-key':
+        specifier: ^5.3.0
+        version: 5.3.0
     devDependencies:
       '@digitalbazaar/ecdsa-multikey':
         specifier: ^1.8.0
@@ -105,10 +105,6 @@ packages:
     resolution: {integrity: sha512-3EV/x7/Sa5mOAuPf0Z0Fi+BsIQKR5Qi2u/KNUgMc1fHx9jQZWjF3//1hvSDDrKV+FKfhAg10S7EcgU04f5tjog==}
     engines: {node: '>=14'}
 
-  '@digitalbazaar/x25519-key-agreement-key-2020@3.0.1':
-    resolution: {integrity: sha512-GmpPEc3ZD/7fz3St38ELa8qgJzjfTxCJi7cwAYPAcZ8Iynldj8sSf2hIblYjjlB82pIENhyXLQHcIALluGcrqA==}
-    engines: {node: '>=14'}
-
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
 
@@ -185,8 +181,8 @@ packages:
     resolution: {integrity: sha512-uD5cnRLoDq5TJWNYASv3HomQXr2xW2TanQZ13TPcmRRo+r8QGPn/DY10kiXw+FYArrUorn8xxjsSSw7C2zS94w==}
     engines: {node: '>=24.0'}
 
-  '@interop/ed25519-verification-key@8.0.4':
-    resolution: {integrity: sha512-Rban9niHY+MJSj3xrgsOmhYIzHz1TjmCsqOrrsyKr+Uk+xNwK1P9QA7RoR7wwjZ98o1rkD0wTl23wga81oY7hw==}
+  '@interop/ed25519-verification-key@8.1.0':
+    resolution: {integrity: sha512-kj8aYyTTxBofETxKmKDbrjXyAHAsXLxnfMLwumu2BYjPfwKBN8QxUkEeeKa0x1wovGIefcTAsuASGMYC4Y2TUg==}
     engines: {node: '>=20'}
     peerDependencies:
       react-native-get-random-values: '>=1.8.0'
@@ -196,6 +192,10 @@ packages:
 
   '@interop/lru-memoize@4.0.3':
     resolution: {integrity: sha512-6c8dnoQNIiL25Q4YovC1a44mREO1lzW3F/lmvdwbAMMbhtGGRoQeqo1H4diwNhBzaxRrUMXrAIwbM26POmI/Yg==}
+    engines: {node: '>=24.0'}
+
+  '@interop/x25519-key-agreement-key@5.3.0':
+    resolution: {integrity: sha512-c/DXLw0kBGICScAw/5Pk6rn9dzjk9tl6Jl9f6yoOle5I7+8998TqaDkVQkMO0TsEf2/XAPcu61VThnJCC++zFQ==}
     engines: {node: '>=24.0'}
 
   '@jridgewell/resolve-uri@3.1.2':
@@ -214,14 +214,18 @@ packages:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
 
+  '@noble/curves@2.4.0':
+    resolution: {integrity: sha512-P4/62zrgfH33CneE3Dn4WhJVA22YUU0eR51wKIan4NVRvwsA0YnPTwWGpNbpuacSujmSFLvyzpyuR30+fbq2Ew==}
+    engines: {node: '>= 20.19.0'}
+
   '@noble/ed25519@1.7.5':
     resolution: {integrity: sha512-xuS0nwRMQBvSxDa7UxMb61xTiH3MxTgUfhyPUALVIe0FlOAz4sjELwyDRyUvqeEYfRSG9qNjFIycqLZppg4RSA==}
 
   '@noble/ed25519@3.1.0':
     resolution: {integrity: sha512-pfcObRY3CtvwfaG9Mt5XqZdKmAQppl37tHUeuBhDUbiwJBCVY4/A4lbMvb1xKhMDx96AqAqZpMWuBX1HulhX4g==}
 
-  '@noble/hashes@2.2.0':
-    resolution: {integrity: sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg==}
+  '@noble/hashes@2.4.0':
+    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
     engines: {node: '>= 20.19.0'}
 
   '@oxc-project/types@0.139.0':
@@ -329,9 +333,6 @@ packages:
 
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
-
-  '@scure/base@2.2.0':
-    resolution: {integrity: sha512-b8XEupJibegiXV+tDUseI8oLQc8ei3d/4Jkb2RpbHh3MfE054ov3uIz2dhFkB3FI8iwYkEh0gGCApkrYggkPNg==}
 
   '@scure/base@2.3.0':
     resolution: {integrity: sha512-NsG6Y03tY6R5BUis4FdVtHVkur0U6FOzskgs9ZXNl78CUc9fkZ78HmENUle1nSOkCasDmbubmWD9qwB7mm4PZA==}
@@ -1115,13 +1116,6 @@ snapshots:
       ed2curve: 0.3.0
       tweetnacl: 1.0.3
 
-  '@digitalbazaar/x25519-key-agreement-key-2020@3.0.1':
-    dependencies:
-      '@noble/ed25519': 1.7.5
-      base58-universal: 2.0.0
-      crypto-ld: 7.0.0
-      tweetnacl: 1.0.3
-
   '@emnapi/core@1.11.1':
     dependencies:
       '@emnapi/wasi-threads': 1.2.2
@@ -1197,16 +1191,22 @@ snapshots:
       '@interop/data-integrity-core': 8.7.1
       '@interop/lru-memoize': 4.0.3
 
-  '@interop/ed25519-verification-key@8.0.4':
+  '@interop/ed25519-verification-key@8.1.0':
     dependencies:
       '@interop/data-integrity-core': 8.7.1
       '@noble/ed25519': 3.1.0
-      '@noble/hashes': 2.2.0
-      '@scure/base': 2.2.0
+      '@noble/hashes': 2.4.0
+      '@scure/base': 2.3.0
 
   '@interop/lru-memoize@4.0.3':
     dependencies:
       lru-cache: 11.5.2
+
+  '@interop/x25519-key-agreement-key@5.3.0':
+    dependencies:
+      '@interop/data-integrity-core': 8.7.1
+      '@noble/curves': 2.4.0
+      '@scure/base': 2.3.0
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
@@ -1224,11 +1224,15 @@ snapshots:
       '@tybys/wasm-util': 0.10.3
     optional: true
 
+  '@noble/curves@2.4.0':
+    dependencies:
+      '@noble/hashes': 2.4.0
+
   '@noble/ed25519@1.7.5': {}
 
   '@noble/ed25519@3.1.0': {}
 
-  '@noble/hashes@2.2.0': {}
+  '@noble/hashes@2.4.0': {}
 
   '@oxc-project/types@0.139.0': {}
 
@@ -1286,8 +1290,6 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
-
-  '@scure/base@2.2.0': {}
 
   '@scure/base@2.3.0': {}
 

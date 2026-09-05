@@ -6,7 +6,7 @@ import * as EcdsaMultikey from '@digitalbazaar/ecdsa-multikey'
 import * as Ed25519Multikey from '@digitalbazaar/ed25519-multikey'
 import { Ed25519VerificationKey } from '@interop/ed25519-verification-key'
 import { X25519KeyAgreementKey2019 } from '@digitalbazaar/x25519-key-agreement-key-2019'
-import { X25519KeyAgreementKey2020 } from '@digitalbazaar/x25519-key-agreement-key-2020'
+import { X25519KeyAgreementKey2020 } from '@interop/x25519-key-agreement-key'
 import { driver } from '../../src/index.js'
 
 const didKeyDriver = driver()

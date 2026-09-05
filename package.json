@@ -35,10 +35,10 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
-    "@digitalbazaar/x25519-key-agreement-key-2020": "^3.0.1",
     "@interop/data-integrity-core": "^8.7.1",
     "@interop/did-io": "^4.1.1",
-    "@interop/ed25519-verification-key": "^8.0.4"
+    "@interop/ed25519-verification-key": "^8.1.0",
+    "@interop/x25519-key-agreement-key": "^5.3.0"
   },
   "devDependencies": {
     "@digitalbazaar/ecdsa-multikey": "^1.8.0",

@@ -55,7 +55,7 @@ contexts, verification-method `type`, and presence/absence of `keyAgreement`.
 - `helpers.ts` — pure helpers for DID/key-id construction, context assembly,
   key-agreement derivation, and the multibase header lookup. This is the only
   module that imports a concrete suite
-  (`@digitalbazaar/x25519-key-agreement-key-2020`, for KAK derivation).
+  (`@interop/x25519-key-agreement-key`, for KAK derivation).
 - `util.ts` — `createFromMultibase`, an adapter that wraps a suite exposing a
   static `fromFingerprint()` so it satisfies the `fromMultibase` contract.
 - `types.ts` — shared `DidDocument`, `VerificationMethod`, and `FromMultibase`
@@ -77,7 +77,7 @@ relationship (no verificationMethod / authentication / assertionMethod).
   `publicMethodFor`; it also supplies the `DidMethodDriver` interface that
   `DidKeyDriver` implements and the `DidGenerationResult` return type, both
   type-only imports), `@interop/ed25519-verification-key`, and
-  `@digitalbazaar/x25519-key-agreement-key-2020`.
+  `@interop/x25519-key-agreement-key`.
   `@interop/data-integrity-core` is a runtime dependency too, but used only for
   type imports (`AbstractKeyPair`, `IDidDocument`, `IPublicKey`, `IKeyPair`,
   `IVerificationMethod`, `IVerificationMethodEntry`, `IDID`); it contributes no
@@ -96,14 +96,12 @@ relationship (no verificationMethod / authentication / assertionMethod).
   `AbstractKeyPair | IKeyPair` (the `'export' in keyPair` runtime check
   discriminates a live instance from a serialized KMS description).
 
-  The lone remaining `any` is the **x25519 key-agreement path**
-  (`@digitalbazaar/x25519-key-agreement-key-2020`, still shimmed `any` in
-  `declarations.d.ts`): it is a key-*agreement* key with no `signer()` /
-  `verifier()`, so it does not structurally satisfy `AbstractKeyPair`. Its
-  instances are stored into the `Map<string, AbstractKeyPair>` via `any`, so the
-  map type is a slight over-statement for keyAgreement entries. Tighten this once
-  that suite is converted to extend `AbstractKeyPair` and ships
-  data-integrity-core types.
+  The lone remaining `any` is the **x25519 key-agreement path** in
+  `helpers.ts` / `_keyPairToDidDocument`. The suite itself
+  (`@interop/x25519-key-agreement-key`) now ships types and extends
+  `AbstractKeyPair`, so the `declarations.d.ts` shim is gone; the remaining
+  `any` annotations on `keyAgreementKeyPair` can be tightened to
+  `X25519KeyAgreementKey2020 | AbstractKeyPair` in a follow-up.
 
   Note also that data-integrity-core's DID-document types are stricter than the
   old `ssi` ones: a suite's exported `@context` is `string | string[]` (so

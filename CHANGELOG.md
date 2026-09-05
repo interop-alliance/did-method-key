@@ -1,5 +1,13 @@
 # @interop/did-method-key ChangeLog
 
+## 7.4.0 - TBD
+
+### Changed
+- Switch the key-agreement dependency from
+  `@digitalbazaar/x25519-key-agreement-key-2020` to
+  `@interop/x25519-key-agreement-key@5.3.0`. The new suite ships its own types
+  and extends `AbstractKeyPair`, so its ambient `any` shim is dropped.
+
 ## 7.3.5 - 2026-08-18
 
 ### Changed
