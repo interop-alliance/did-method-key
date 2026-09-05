@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 7.4.0 - TBD
+## 7.4.0 - 2026-09-05
 
 ### Changed
 - Switch the key-agreement dependency from
