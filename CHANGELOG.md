@@ -1,5 +1,11 @@
 # @interop/did-method-key ChangeLog
 
+## 7.4.1 - TBD
+
+### Changed
+
+- Use `X25519KeyAgreementKey2020.fromEd25519` for conversion.
+
 ## 7.4.0 - 2026-09-05
 
 ### Changed

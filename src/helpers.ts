@@ -119,7 +119,7 @@ export async function getKeyAgreementKeyPair({
   // suite `type`: Multikey-style suites export `type: 'Multikey'` for ed25519
   // keys, while the older 2020 suite reports `Ed25519VerificationKey2020`.
   // Both encode the public key as a base58btc `z6Mk...` multibase value, which
-  // is all `fromEd25519VerificationKey2020()` needs to perform the conversion.
+  // is all `fromEd25519()` needs to perform the conversion.
   const publicKeyMultibase = (
     verificationPublicKey as { publicKeyMultibase?: string }
   ).publicKeyMultibase
@@ -134,10 +134,9 @@ export async function getKeyAgreementKeyPair({
   }
 
   // The KAK pair reuses the source key's controller, but generates its own .id
-  const keyAgreementKeyPair =
-    X25519KeyAgreementKey2020.fromEd25519VerificationKey2020({
-      keyPair: verificationPublicKey
-    })
+  const keyAgreementKeyPair = X25519KeyAgreementKey2020.fromEd25519(
+    verificationPublicKey
+  )
 
   return { keyAgreementKeyPair }
 }

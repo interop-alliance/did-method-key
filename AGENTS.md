@@ -38,7 +38,7 @@ registered suite.
   deliberate no-op/FIXME). This is the representation the tests and README
   assume.
 - A suite that exports `Ed25519VerificationKey2020` (the legacy shape) would
-  instead trigger `X25519KeyAgreementKey2020.fromEd25519VerificationKey2020(...)`
+  instead trigger `X25519KeyAgreementKey2020.fromEd25519(...)`
   and add a derived keyAgreement key. The 2020 branch is retained for that case
   but is not exercised by the default suite.
 
