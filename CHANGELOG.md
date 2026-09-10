@@ -1,5 +1,11 @@
 # @interop/did-method-key ChangeLog
 
+## 7.4.2 - TBD
+
+### Changed
+
+- Update to latest ed25519 key dep (`didKeySigner()`).
+
 ## 7.4.1 - 2026-09-09
 
 ### Changed
