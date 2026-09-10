@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 7.4.2 - TBD
+## 7.4.2 - 2026-09-10
 
 ### Changed
 
