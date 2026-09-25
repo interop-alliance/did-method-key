@@ -35,9 +35,9 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
-    "@interop/data-integrity-core": "^8.7.1",
-    "@interop/did-io": "^4.1.1",
-    "@interop/ed25519-verification-key": "^8.2.0",
+    "@interop/data-integrity-core": "^8.8.0",
+    "@interop/did-io": "^4.1.2",
+    "@interop/ed25519-verification-key": "^8.2.1",
     "@interop/x25519-key-agreement-key": "^5.4.0"
   },
   "devDependencies": {
