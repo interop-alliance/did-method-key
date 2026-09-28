@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 7.4.4 - TBD
+## 7.4.4 - 2026-09-28
 
 ### Changed
 - Update to latest did-io and x25519 deps.
