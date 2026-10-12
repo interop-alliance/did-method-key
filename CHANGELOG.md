@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 7.4.6 - TBD
+## 7.4.6 - 2026-10-12
 
 ### Changed
 - Update to latest `@interop/data-integrity-core@8.9.0` (verification method error).
