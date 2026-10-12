@@ -36,7 +36,7 @@
   "sideEffects": false,
   "dependencies": {
     "@interop/data-integrity-core": "^8.9.0",
-    "@interop/did-io": "^4.2.0",
+    "@interop/did-io": "^4.2.2",
     "@interop/ed25519-verification-key": "^8.2.2",
     "@interop/x25519-key-agreement-key": "^5.4.1"
   },

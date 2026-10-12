@@ -12,8 +12,8 @@ importers:
         specifier: ^8.9.0
         version: 8.9.0
       '@interop/did-io':
-        specifier: ^4.2.0
-        version: 4.2.0
+        specifier: ^4.2.2
+        version: 4.2.2
       '@interop/ed25519-verification-key':
         specifier: ^8.2.2
         version: 8.2.2
@@ -181,8 +181,8 @@ packages:
     resolution: {integrity: sha512-FGj+D6VLb3q+UxAA5PRB0caoj5/cdpDLRW7Hu5cMI7xnpsEABnEi5leOL/BonTtSM6T/OdE/cuTOcrba0TGPdQ==}
     engines: {node: '>=24.0'}
 
-  '@interop/did-io@4.2.0':
-    resolution: {integrity: sha512-irPL6CDwnYVhlii/8eJUG7fKXSmozCvV1bA9mzdtb/j8WwI89GAAwZtbT/ZB+aQy9rVR9Ghoe8fJypHZx8clKg==}
+  '@interop/did-io@4.2.2':
+    resolution: {integrity: sha512-Q/tko2ZQWP61R9nLHoEQaB4eaQn2XwYhaRmZHjv8/C4OT/dQSjvFjR8VeJfA6vTLEl8Urh2eRzUik2lVFuAUJw==}
     engines: {node: '>=24.0'}
 
   '@interop/ed25519-verification-key@8.2.2':
@@ -1194,9 +1194,9 @@ snapshots:
     dependencies:
       '@scure/base': 2.3.0
 
-  '@interop/did-io@4.2.0':
+  '@interop/did-io@4.2.2':
     dependencies:
-      '@interop/data-integrity-core': 8.8.0
+      '@interop/data-integrity-core': 8.9.0
       '@interop/lru-memoize': 4.0.3
 
   '@interop/ed25519-verification-key@8.2.2':
