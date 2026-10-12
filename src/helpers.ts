@@ -2,13 +2,14 @@
  * Copyright (c) 2023-2026 Digital Bazaar, Inc. All rights reserved.
  */
 import { X25519KeyAgreementKey2020 } from '@interop/x25519-key-agreement-key'
-import type {
-  AbstractKeyPair,
-  IDID,
-  IDidDocument,
-  IKeyPair,
-  IPublicKey,
-  IVerificationMethodEntry
+import {
+  VerificationMethodError,
+  type AbstractKeyPair,
+  type IDID,
+  type IDidDocument,
+  type IKeyPair,
+  type IPublicKey,
+  type IVerificationMethodEntry
 } from '@interop/data-integrity-core'
 import type { FromMultibase } from './types.js'
 
@@ -57,7 +58,8 @@ const contextsBySuite = new Map<string, string>([
  *   generating the id.
  * @param options.keyIdFragment {string} - The key identifier fragment.
  *
- * @throws {Error} If no key in the document has that id.
+ * @throws {VerificationMethodError} With code `notFound` if no key in the
+ *   document has that id.
  *
  * @returns {IPublicKey} Returns the public key node, with `@context`.
  */
@@ -76,7 +78,10 @@ export function getKey({
   ].find(key => typeof key === 'object' && key.id === keyId) as
     IPublicKey | undefined
   if (!publicKey) {
-    throw new Error(`Key "${keyId}" not found in DID document.`)
+    throw new VerificationMethodError(
+      `Key "${keyId}" not found in DID document.`,
+      { code: 'notFound', verificationMethod: keyId }
+    )
   }
 
   return {

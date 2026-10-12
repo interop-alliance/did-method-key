@@ -1,5 +1,12 @@
 # @interop/did-method-key ChangeLog
 
+## 7.5.0 - TBD
+
+### Changed
+- `get()` with a key id fragment the DID Document does not have throws
+  `VerificationMethodError` (from `@interop/data-integrity-core`) with code
+  `notFound` and the `verificationMethod` id. The message is unchanged.
+
 ## 7.4.6 - 2026-10-12
 
 ### Changed
