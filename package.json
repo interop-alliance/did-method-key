@@ -1,7 +1,7 @@
 {
   "name": "@interop/did-method-key",
   "description": "A did:key method resolver.",
-  "version": "7.4.6",
+  "version": "7.5.0",
   "type": "module",
   "scripts": {
     "build": "pnpm run clear && tsc",
