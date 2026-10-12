@@ -116,6 +116,15 @@ describe('did:key method driver', () => {
       })
     })
 
+    it('should reject a key id fragment the DID Document does not have', async () => {
+      const did = 'did:key:z6MknCCLeeHBUaHu4aHSVLDCYQW9gjVJ7a63FpMvtuVMy53T'
+      const keyId = `${did}#not-a-key`
+
+      await expect(didKeyDriver.get({ did: keyId })).rejects.toThrow(
+        `Key "${keyId}" not found in DID document.`
+      )
+    })
+
     it('should resolve an individual X25519-based DID', async () => {
       const did = 'did:key:z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
       const keyId = `${did}#z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc`

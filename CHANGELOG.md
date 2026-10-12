@@ -1,5 +1,12 @@
 # @interop/did-method-key ChangeLog
 
+## 7.4.5 - TBD
+
+### Fixed
+- `get()` with a key id fragment the DID Document does not have now throws
+  `Key "<id>" not found in DID document.` instead of returning the key
+  agreement key, or a `TypeError` when there is none.
+
 ## 7.4.4 - 2026-09-28
 
 ### Changed

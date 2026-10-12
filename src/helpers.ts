@@ -57,6 +57,8 @@ const contextsBySuite = new Map<string, string>([
  *   generating the id.
  * @param options.keyIdFragment {string} - The key identifier fragment.
  *
+ * @throws {Error} If no key in the document has that id.
+ *
  * @returns {IPublicKey} Returns the public key node, with `@context`.
  */
 export function getKey({
@@ -66,20 +68,15 @@ export function getKey({
   didDocument: IDidDocument
   keyIdFragment: string
 }): IPublicKey {
-  // Determine if the key id fragment belongs to the "main" public key,
-  // or the keyAgreement key
+  // The fragment names either the "main" public key or the key agreement key.
   const keyId = didDocument.id + '#' + keyIdFragment
-  const [verificationMethod] = toArray(didDocument.verificationMethod)
-  let publicKey: IPublicKey
-  if (
-    typeof verificationMethod === 'object' &&
-    verificationMethod.id === keyId
-  ) {
-    // Return the public key node for the main public key
-    publicKey = verificationMethod
-  } else {
-    // Return the public key node for the X25519 key-agreement key
-    publicKey = toArray(didDocument.keyAgreement)[0] as IPublicKey
+  const publicKey = [
+    ...toArray(didDocument.verificationMethod),
+    ...toArray(didDocument.keyAgreement)
+  ].find(key => typeof key === 'object' && key.id === keyId) as
+    IPublicKey | undefined
+  if (!publicKey) {
+    throw new Error(`Key "${keyId}" not found in DID document.`)
   }
 
   return {
