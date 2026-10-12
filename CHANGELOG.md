@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 7.4.5 - TBD
+## 7.4.5 - 2026-10-12
 
 ### Fixed
 - `get()` with a key id fragment the DID Document does not have now throws
