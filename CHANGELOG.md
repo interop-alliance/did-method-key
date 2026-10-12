@@ -1,6 +1,6 @@
 # @interop/did-method-key ChangeLog
 
-## 7.5.1 - TBD
+## 7.5.1 - 2026-10-12
 
 ### Changed
 - Update to latest did-io.
