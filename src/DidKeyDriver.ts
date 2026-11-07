@@ -120,9 +120,10 @@ export class DidKeyDriver implements DidMethodDriver {
    * @param [options.keyAgreementKeyPair] {object} - Optional keyAgreement key
    *   pair, passed through to `fromKeyPair()`.
    *
-   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, AbstractKeyPair>,
-   *   methodFor: Function}>} Resolves with the generated DID Document and the
-   *   corresponding key pairs (for storage in a KMS).
+   * @returns {Promise<DidGenerationResult>} Resolves with the generated DID
+   *   Document, the corresponding key pairs (for storage in a KMS), and a
+   *   `methodFor({ purpose })` accessor that returns the key pair for a
+   *   verification relationship.
    */
   async generate({
     keyType,
@@ -175,10 +176,10 @@ export class DidKeyDriver implements DidMethodDriver {
    * @param [options.verificationKeyPair] {object} - A verification KeyPair.
    * @param [options.keyAgreementKeyPair] {object} - A keyAgreement KeyPair.
    *
-   * @returns {Promise<{didDocument: IDidDocument, keyPairs: Map<string, AbstractKeyPair>,
-   *   methodFor: Function}>} Resolves with the generated DID Document, along
-   *   with the corresponding key pairs used to generate it (for storage in a
-   *   KMS).
+   * @returns {Promise<DidGenerationResult>} Resolves with the generated DID
+   *   Document, the key pairs used to generate it (for storage in a KMS), and
+   *   a `methodFor({ purpose })` accessor that returns the key pair for a
+   *   verification relationship.
    */
   async fromKeyPair({
     verificationKeyPair,
